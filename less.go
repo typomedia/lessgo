@@ -106,10 +106,8 @@ func RenderFile(input, output string, mods ...map[string]interface{}) error {
 			var less = require('./assets/less-go');
 
 			var data = fs.readFileSync("` + input + `");
-			print('Rendering less: ', data.slice(0,50) + '...');
 			less.render(data, ` + string(encodedOptions) + `, function (e, output) {
 				if (e == null) {
-					print("Rendered");
 					writeFile("` + output + `", output.css);
 				} else {
 					print('Render error', e.stack);
