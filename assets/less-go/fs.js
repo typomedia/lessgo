@@ -5,8 +5,6 @@ exports.statSync = function (path) {
 	}
 }
 
-exports.readFileSync = function (path, encoding) {	
-	print('read file sync');
-	print(path);
+exports.readFileSync = function (path, encoding) {
 	return readFile(path);
 }
