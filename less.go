@@ -152,6 +152,10 @@ func Render(input string, mods ...map[string]interface{}) (string, error) {
 	return defaultCompiler.Render(input, mods...)
 }
 
+func RenderFile(input string, mods ...map[string]interface{}) (string, error) {
+	return defaultCompiler.RenderFile(input, mods...)
+}
+
 func (c *Compiler) RenderFile(input string, mods ...map[string]interface{}) (string, error) {
 	var options = map[string]interface{}{}
 
