@@ -1,12 +1,11 @@
 var environment = require("./environment"),
     FileManager = require("./file-manager"),
-    createFromEnvironment = require("../less"),
-    less = createFromEnvironment(environment, [new FileManager()]);    
+    createFromEnvironment = require("../less").default;
 
-less.writeError = function (ctx, options) {
-    options = options || {};
-    if (options.silent) { return; }
-    print(less.formatError(ctx, options));
-};
+var PluginLoader = require('./plugin-loader');
+
+var less = createFromEnvironment(environment, [new FileManager()]);
+
+less.PluginLoader = PluginLoader;
 
 module.exports = less;

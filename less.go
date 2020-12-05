@@ -1,157 +1,226 @@
 package less
 
 import (
-	"encoding/json"
 	"errors"
-	"gopkg.in/olebedev/go-duktape.v2"
-	"io/ioutil"
-	"os"
+	"fmt"
+	"github.com/dop251/goja"
+	"github.com/dop251/goja_nodejs/require"
+	"github.com/gobuffalo/packr/v2"
+	"log"
+	"strings"
+	"sync"
 )
 
 var (
-	ctx *duktape.Context
-	r   Reader
-	w   Writer
+	script          *goja.Program
+	defaultCompiler *Compiler
+	registry        *require.Registry
+
+	box = packr.New("assets", "assets")
 )
 
-type Reader interface {
-	ReadFile(string) ([]byte, error)
+type Compiler struct {
+	runtime *goja.Runtime
+	mutex   *sync.Mutex
+	r       Reader
+	w       Writer
 }
 
-type Writer interface {
-	WriteFile(string, []byte, os.FileMode) error
-}
+func NewCompiler() (*Compiler, error) {
+	runtime := goja.New()
 
-type reader struct{}
+	registry.Enable(runtime)
 
-func (reader) ReadFile(path string) ([]byte, error) {
-	return ioutil.ReadFile(path)
-}
-
-type writer struct{}
-
-func (writer) WriteFile(path string, data []byte, mode os.FileMode) error {
-	return ioutil.WriteFile(path, data, mode)
-}
-
-func readFile(c *duktape.Context) int {
-	var path = c.SafeToString(-1)
-	if path == "" {
-		return 0
+	c := &Compiler{
+		runtime: runtime,
+		mutex:   &sync.Mutex{},
+		r:       reader{},
+		w:       writer{},
 	}
-	bytes, err := r.ReadFile(path)
-	if err != nil {
-		bytes, err = Asset(path)
-		if err != nil {
-			return 0
+
+	c.runtime.Set("print", func(call goja.FunctionCall) goja.Value {
+		args := make([]interface{}, len(call.Arguments))
+
+		for i, arg := range call.Arguments {
+			args[i] = arg.String()
 		}
-	}
-	c.PushString(string(bytes))
-	return 1
-}
 
-func readFileFromAssets(c *duktape.Context) int {
-	var path = c.SafeToString(-1)
-	if path == "" {
-		return 0
-	}
-	bytes, err := Asset(path)
-	if err != nil {
-		return 0
-	}
-	c.PushString(string(bytes))
-	return 1
-}
+		fmt.Println(args...)
 
-func writeFile(c *duktape.Context) int {
-	var data = []byte(c.SafeToString(-1))
-	var path = c.SafeToString(-2)
-	if path == "" {
-		return 0
-	}
-	err := w.WriteFile(path, data, 0644)
-	if err != nil {
-		return 0
-	}
-	return 1
-}
+		return goja.Null()
+	})
+	c.runtime.Set("readFile", c.readFile)
+	c.runtime.Set("readFileFromAssets", c.readFileFromAssets)
+	c.runtime.Set("writeFile", c.writeFile)
 
-func SetReader(customReader Reader) {
-	r = customReader
-}
+	if script == nil {
+		return nil, errors.New("script was not loaded")
+	}
 
-func SetWriter(customWriter Writer) {
-	w = customWriter
-}
+	if _, err := c.runtime.RunProgram(script); err != nil {
+		return nil, err
+	}
 
-func RenderFile(input, output string, mods ...map[string]interface{}) error {
-	if input == "" {
-		return errors.New("No input path provided")
-	}
-	if output == "" {
-		output = input + ".css"
-	}
-	var options = map[string]interface{}{}
-	if len(mods) > 0 {
-		options = mods[0]
-	}
-	options["filename"] = input
-	encodedOptions, err := json.Marshal(options)
-	if err != nil {
-		return err
-	}
-	ctx.EvalString(`
-		try {
-			var fs = require('./assets/less-go/fs');
-			var less = require('./assets/less-go');
-
-			var data = fs.readFileSync("` + input + `");
-			less.render(data, ` + string(encodedOptions) + `, function (e, output) {
-				if (e == null) {
-					writeFile("` + output + `", output.css);
-				} else {
-					print('Render error', e.stack);
-					e.stack
-				}
-			});
-		} catch (e) {
-			print("ERROR!", e.stack);
-			e.stack
-		}
-	`)
-	result := ctx.GetString(-1)
-	ctx.Pop()
-	if result != "" {
-		return errors.New(result)
-	}
-	return nil
+	return c, nil
 }
 
 func init() {
-	r = reader{}
-	w = writer{}
-	ctx = duktape.New()
-	ctx.PushGlobalGoFunction("readFile", readFile)
-	ctx.PushGlobalGoFunction("readFileFromAssets", readFileFromAssets)
-	ctx.PushGlobalGoFunction("writeFile", writeFile)
+	registry = require.NewRegistryWithLoader(func(filename string) ([]byte, error) {
+		filename = strings.Replace(filename, "\\", "/", -1)
 
-	ctx.EvalString(`
-		Duktape.modSearch = function (id, require, exports, module) {
-			id = id.replace(/\.js$/, "");
-			var res = readFileFromAssets(id + ".js");
-			if (typeof res === 'string') {
-				return res;
+		bytes, err := box.Find(filename)
+
+		if err == nil && bytes != nil && len(bytes) > 0 {
+			return bytes, err
+		}
+
+		return nil, require.ModuleFileDoesNotExistError
+	})
+
+	script = goja.MustCompile("compiler.js", `
+		var fs = require('./assets/less-go/fs'),
+			less = require('./assets/less-go');
+		
+		function compile(input, options, cb) {
+			less.render(input, options, function (e, output) {
+				if (e == null) {
+					cb(output.css);
+				} else {
+					cb(null, e);
+				}
+			});
+		}
+	`, false)
+
+	var err error
+	defaultCompiler, err = NewCompiler()
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (c *Compiler) readFile(call goja.FunctionCall) goja.Value {
+	path := call.Argument(0).String()
+	if path == "" {
+		return goja.Null()
+	}
+	bytes, err := c.r.ReadFile(path)
+	if err != nil {
+		bytes, err = box.Find(path)
+		if err != nil {
+			return goja.Null()
+		}
+	}
+	return c.runtime.ToValue(string(bytes))
+}
+
+func (c *Compiler) readFileFromAssets(call goja.FunctionCall) goja.Value {
+	path := call.Argument(0).String()
+	if path == "" {
+		return goja.Null()
+	}
+	bytes, err := box.Find(path)
+	if err != nil {
+		return goja.Null()
+	}
+	return c.runtime.ToValue(string(bytes))
+}
+
+func (c *Compiler) writeFile(call goja.FunctionCall) goja.Value {
+	data := []byte(call.Argument(0).String())
+	path := call.Argument(1).String()
+	if path == "" {
+		return goja.Null()
+	}
+	err := c.w.WriteFile(path, data, 0644)
+	if err != nil {
+		return goja.Null()
+	}
+	return c.runtime.ToValue(true)
+}
+
+func (c *Compiler) SetReader(customReader Reader) {
+	c.r = customReader
+}
+
+func (c *Compiler) SetWriter(customWriter Writer) {
+	c.w = customWriter
+}
+
+func Render(input string, mods ...map[string]interface{}) (string, error) {
+	return defaultCompiler.Render(input, mods...)
+}
+
+func (c *Compiler) RenderFile(input string, mods ...map[string]interface{}) (string, error) {
+	var options = map[string]interface{}{}
+
+	if len(mods) > 0 {
+		options = mods[0]
+	}
+
+	options["filename"] = input
+
+	b, err := c.r.ReadFile(input)
+
+	if err != nil {
+		return "", err
+	}
+
+	return c.Render(string(b), options)
+}
+
+func (c *Compiler) Render(input string, mods ...map[string]interface{}) (string, error) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
+	var options = map[string]interface{}{}
+
+	if len(mods) > 0 {
+		options = mods[0]
+	}
+
+	compile, ok := goja.AssertFunction(c.runtime.Get("compile"))
+
+	if !ok {
+		return "", errors.New("unable to get compiler")
+	}
+
+	resChan := make(chan interface{}, 1)
+
+	_, err := compile(goja.Null(), c.runtime.ToValue(input), c.runtime.ToValue(options), c.runtime.ToValue(func(call goja.FunctionCall) goja.Value {
+		if len(call.Arguments) < 2 {
+			resChan <- call.Argument(0).String()
+		} else {
+			err := call.Argument(1).Export()
+
+			log.Println("Error:", err)
+
+			if ex, ok := err.(*goja.Exception); ok {
+				log.Println("Exception:", ex)
 			}
 
-			var res = readFileFromAssets(id + "/index.js");
-			if (typeof res === 'string') {
-				return 'module.exports = require("' + id + '/index.js")';
-			}
-		    throw new Error('module not found: ' + id);
-		};
-	`)
+			resChan <- errors.New(call.Argument(1).String())
+		}
 
-	// result := ctx.GetString(-1)
-	// ctx.Pop()
-	// fmt.Println("result is:", result)
+		return goja.Null()
+	}))
+
+	if err != nil {
+		if ex, ok := err.(*goja.Exception); ok {
+			log.Println("Exception:", ex)
+		}
+		return "", err
+	}
+
+	v := <-resChan
+
+	switch t := v.(type) {
+	case string:
+		return t, nil
+	case error:
+		return "", t
+	}
+
+	return "", nil
 }
