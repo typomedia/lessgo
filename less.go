@@ -6,7 +6,6 @@ import (
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/require"
 	"github.com/gobuffalo/packr/v2"
-	"log"
 	"strings"
 	"sync"
 )
@@ -16,7 +15,7 @@ var (
 	defaultCompiler *Compiler
 	registry        *require.Registry
 
-	box = packr.New("assets", "assets")
+	box = packr.New("Assets", "./assets")
 )
 
 type Compiler struct {
@@ -78,8 +77,8 @@ func init() {
 	})
 
 	script = goja.MustCompile("compiler.js", `
-		var fs = require('./assets/less-go/fs'),
-			less = require('./assets/less-go');
+		var fs = require('./less-go/fs'),
+			less = require('./less-go');
 		
 		function compile(input, options, cb) {
 			less.render(input, options, function (e, output) {
@@ -196,14 +195,6 @@ func (c *Compiler) Render(input string, mods ...map[string]interface{}) (string,
 		if len(call.Arguments) < 2 {
 			resChan <- call.Argument(0).String()
 		} else {
-			err := call.Argument(1).Export()
-
-			log.Println("Error:", err)
-
-			if ex, ok := err.(*goja.Exception); ok {
-				log.Println("Exception:", ex)
-			}
-
 			resChan <- errors.New(call.Argument(1).String())
 		}
 
@@ -211,9 +202,6 @@ func (c *Compiler) Render(input string, mods ...map[string]interface{}) (string,
 	}))
 
 	if err != nil {
-		if ex, ok := err.(*goja.Exception); ok {
-			log.Println("Exception:", ex)
-		}
 		return "", err
 	}
 

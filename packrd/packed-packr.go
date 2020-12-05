@@ -117,7 +117,7 @@ var _ = func() error {
 	g.DefaultResolver = hgr
 
 	func() {
-		b := packr.New("assets", "assets")
+		b := packr.New("Assets", "./assets")
 		b.SetResolver("less/constants.js", packr.Pointer{ForwardBox: gk, ForwardPath: "b8401dee23c9c91809de248da740d7c3"})
 		b.SetResolver("less/contexts.js", packr.Pointer{ForwardBox: gk, ForwardPath: "b66a72dd51af71d55ae71df01f053f06"})
 		b.SetResolver("less/data/colors.js", packr.Pointer{ForwardBox: gk, ForwardPath: "1f8bd38e7ea9f13047634833f96b18bc"})
