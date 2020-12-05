@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/kib357/less-go"
-	"github.com/spf13/cobra"
 	"fmt"
+	"github.com/spf13/cobra"
+	"github.com/tystuyfzand/less-go"
+	"log"
+	"os"
 )
 
 func main() {
@@ -16,13 +18,28 @@ func main() {
 			render(*input, *output)
 		},
 	}
-	input = rootCmd.PersistentFlags().StringP("input", "i", "styles.less", "Input less file")
-	output = rootCmd.PersistentFlags().StringP("output", "o", "styles.css", "Output css file")
+	input = rootCmd.PersistentFlags().StringP("input", "i", "style.less", "Input less file")
+	output = rootCmd.PersistentFlags().StringP("output", "o", "style.css", "Output css file")
 
 	rootCmd.Execute()
 }
 
 func render(input, output string) {
 	fmt.Println(input, output)
-	less.RenderFile(input, output)
+
+	outputFile, err := os.Create(output)
+
+	if err != nil {
+		log.Fatalln("Unable to open output file:", err)
+	}
+
+	defer outputFile.Close()
+
+	outputStr, err := less.RenderFile(input)
+
+	if err != nil {
+		log.Fatalln("Unable to render:", err)
+	}
+
+	outputFile.Write([]byte(outputStr))
 }

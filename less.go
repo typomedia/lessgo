@@ -2,7 +2,6 @@ package less
 
 import (
 	"errors"
-	"fmt"
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/require"
 	"github.com/gobuffalo/packr/v2"
@@ -16,15 +15,17 @@ var (
 	registry        *require.Registry
 
 	box = packr.New("Assets", "./assets")
+
+	defaultReader = &reader{}
 )
 
 type Compiler struct {
 	runtime *goja.Runtime
 	mutex   *sync.Mutex
 	r       Reader
-	w       Writer
 }
 
+// NewCompiler creates a new compiler with a set reader/writer.
 func NewCompiler() (*Compiler, error) {
 	runtime := goja.New()
 
@@ -33,24 +34,11 @@ func NewCompiler() (*Compiler, error) {
 	c := &Compiler{
 		runtime: runtime,
 		mutex:   &sync.Mutex{},
-		r:       reader{},
-		w:       writer{},
+		r:       defaultReader,
 	}
 
-	c.runtime.Set("print", func(call goja.FunctionCall) goja.Value {
-		args := make([]interface{}, len(call.Arguments))
-
-		for i, arg := range call.Arguments {
-			args[i] = arg.String()
-		}
-
-		fmt.Println(args...)
-
-		return goja.Null()
-	})
-	c.runtime.Set("readFile", c.readFile)
+	c.runtime.Set("readFileNative", c.readFile)
 	c.runtime.Set("readFileFromAssets", c.readFileFromAssets)
-	c.runtime.Set("writeFile", c.writeFile)
 
 	if script == nil {
 		return nil, errors.New("script was not loaded")
@@ -63,6 +51,7 @@ func NewCompiler() (*Compiler, error) {
 	return c, nil
 }
 
+// Initialize the registry and precompile the script
 func init() {
 	registry = require.NewRegistryWithLoader(func(filename string) ([]byte, error) {
 		filename = strings.Replace(filename, "\\", "/", -1)
@@ -83,9 +72,9 @@ func init() {
 		function compile(input, options, cb) {
 			less.render(input, options, function (e, output) {
 				if (e == null) {
-					cb(output.css);
+					cb(null, output.css);
 				} else {
-					cb(null, e);
+					cb(e);
 				}
 			});
 		}
@@ -99,21 +88,28 @@ func init() {
 	}
 }
 
+// readFile will read a sync file either from the reader interface, or the box
 func (c *Compiler) readFile(call goja.FunctionCall) goja.Value {
 	path := call.Argument(0).String()
+
 	if path == "" {
 		return goja.Null()
 	}
+
 	bytes, err := c.r.ReadFile(path)
+
 	if err != nil {
 		bytes, err = box.Find(path)
+
 		if err != nil {
 			return goja.Null()
 		}
 	}
+
 	return c.runtime.ToValue(string(bytes))
 }
 
+// readFileFromAssets will read a file from the packr box
 func (c *Compiler) readFileFromAssets(call goja.FunctionCall) goja.Value {
 	path := call.Argument(0).String()
 	if path == "" {
@@ -126,35 +122,22 @@ func (c *Compiler) readFileFromAssets(call goja.FunctionCall) goja.Value {
 	return c.runtime.ToValue(string(bytes))
 }
 
-func (c *Compiler) writeFile(call goja.FunctionCall) goja.Value {
-	data := []byte(call.Argument(0).String())
-	path := call.Argument(1).String()
-	if path == "" {
-		return goja.Null()
-	}
-	err := c.w.WriteFile(path, data, 0644)
-	if err != nil {
-		return goja.Null()
-	}
-	return c.runtime.ToValue(true)
-}
-
+// SetReader sets the reader interface to provide files
 func (c *Compiler) SetReader(customReader Reader) {
 	c.r = customReader
 }
 
-func (c *Compiler) SetWriter(customWriter Writer) {
-	c.w = customWriter
-}
-
+// Render renders the input as raw less using a shared compiler.
 func Render(input string, mods ...map[string]interface{}) (string, error) {
 	return defaultCompiler.Render(input, mods...)
 }
 
+// RenderFile renders the input as a file using a shared compiler.
 func RenderFile(input string, mods ...map[string]interface{}) (string, error) {
 	return defaultCompiler.RenderFile(input, mods...)
 }
 
+// RenderFile renders the input as a file path, using the Reader interface.
 func (c *Compiler) RenderFile(input string, mods ...map[string]interface{}) (string, error) {
 	var options = map[string]interface{}{}
 
@@ -173,6 +156,7 @@ func (c *Compiler) RenderFile(input string, mods ...map[string]interface{}) (str
 	return c.Render(string(b), options)
 }
 
+// Render renders input as raw less
 func (c *Compiler) Render(input string, mods ...map[string]interface{}) (string, error) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
@@ -195,10 +179,12 @@ func (c *Compiler) Render(input string, mods ...map[string]interface{}) (string,
 	var renderErr error
 
 	_, err := compile(goja.Null(), c.runtime.ToValue(input), c.runtime.ToValue(options), c.runtime.ToValue(func(call goja.FunctionCall) goja.Value {
-		if len(call.Arguments) < 2 {
-			res = call.Argument(0).String()
+		errArgument := call.Argument(0)
+
+		if goja.IsNull(errArgument) {
+			res = call.Argument(1).String()
 		} else {
-			renderErr = errors.New(call.Argument(1).String())
+			renderErr = errors.New(errArgument.String())
 		}
 
 		return goja.Null()

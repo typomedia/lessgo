@@ -18,9 +18,3 @@ type reader struct{}
 func (reader) ReadFile(path string) ([]byte, error) {
 	return ioutil.ReadFile(path)
 }
-
-type writer struct{}
-
-func (writer) WriteFile(path string, data []byte, mode os.FileMode) error {
-	return ioutil.WriteFile(path, data, mode)
-}

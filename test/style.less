@@ -1,0 +1,317 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,700|Roboto:300,400,700|Roboto+Slab:300,400,700&display=swap');
+
+@color-dark: rgb(11, 11, 11);
+@color-light: rgb(244, 244, 244);
+@color-brown: rgb(64, 58, 57);
+@color-grey: rgb(48, 48, 48);
+
+@page {
+  size: A4 portrait;
+}
+
+.page {
+  background: @color-light;
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 0.5cm;
+  box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
+  width: 21cm;
+  min-height: 29.7cm;
+  padding: 1cm;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+}
+
+@media print {
+  body, .page {
+    margin: 0;
+    box-shadow: none;
+  }
+  .page {
+    padding: 0.5cm;
+    background: #fff;
+  }
+
+  ul.timeline {
+    box-shadow: inset 10px 0 0 0 #fff, inset 12px 0 0 0 @color-brown;
+  }
+
+  .break-wrapper {
+    page-break-inside: avoid;
+  }
+
+  .web-only {
+    display: none;
+  }
+
+  .print-only {
+    display: inline-block !important;
+  }
+}
+
+.print-only {
+  display: none;
+}
+
+body {
+  color: @color-dark;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 10pt;
+  -webkit-print-color-adjust: exact !important;
+}
+body {
+  background: rgb(204,204,204);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Roboto', sans-serif;
+  color: @color-dark;
+  font-weight: normal;
+  margin: 0;
+}
+
+p {
+  font-family: 'Open Sans', sans-serif;
+  color: @color-dark;
+  font-weight: lighter;
+  margin-top: 2mm;
+}
+
+ul {
+  padding-left: 3mm;
+  margin: 2mm;
+}
+
+.big {
+  font-size: 120%;
+}
+
+.slab {
+  font-family: 'Roboto Slab', serif;
+}
+
+a, a:visited, a:focus, a:active {
+  color: @color-brown;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+  border-bottom: 1px dashed @color-brown;
+
+  &:hover {
+    color: @color-grey;
+  }
+}
+
+header {
+  border-bottom: 2pt solid @color-brown;
+  overflow: hidden;
+  margin-bottom: 1cm;
+
+  .header-links {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 10px;
+  }
+
+  img.image {
+    display: block;
+    width: 3.5cm;
+    height: 3.5cm;
+    float: left;
+    border-width: 1px;
+    border-style: solid;
+    border-color: @color-brown;
+    border-radius: 100%;
+    margin-right: 1cm;
+    margin-bottom: 1cm;
+  }
+
+  h1 {
+    font-size: 24pt;
+    text-transform: uppercase;
+    font-family: 'Roboto Slab', sans-serif;
+    padding-top: 0.25cm;
+  }
+  h2 {
+    font-size: 10pt;
+  }
+
+  ul {
+    display: block;
+    width: auto;
+    margin: 0;
+    list-style: none;
+    padding: 0;
+    white-space: nowrap;
+    padding-top: 0.5cm;
+
+    li {
+      list-style: none;
+      display: inline-block;
+      white-space: nowrap;
+      font-family: 'Roboto Slab', sans-serif;
+      font-size: 10pt;
+
+      &:after {
+        content: " •";
+      }
+      &:last-child:after {
+        display: none;
+      }
+    }
+  }
+}
+
+div.columm-left {
+  width: (100%/3);
+  float: left;
+  box-sizing: border-box;
+  padding-right: 2mm;
+}
+
+div.column-right {
+  width: (100%/3)*2;
+  float: right;
+  box-sizing: border-box;
+  padding-left: 2mm;
+}
+
+h2.title {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14pt;
+  border-bottom: 1pt solid @color-brown;
+  position: relative;
+  text-transform: uppercase;
+  letter-spacing: 1mm;
+}
+
+h3.subtitle {
+  font-family: 'Roboto', sans-serif;
+  font-size: 10pt;
+  border-bottom: 1pt solid @color-brown;
+  position: relative;
+  text-transform: uppercase;
+  letter-spacing: 0.5mm;
+}
+
+table.progress-bars {
+  border: none;
+  width: 100%;
+
+  border-collapse: separate;
+  border-spacing: 1mm;
+
+  margin-top: 2mm;
+  margin-bottom: 3mm;
+
+  tr {
+    height: 1em;
+  }
+
+  td {
+    padding: 0;
+  }
+
+  td:first-child {
+    width: 0;
+    white-space: nowrap;
+  }
+
+  td:nth-child(2) {
+    width: 100%;
+    background: @color-brown;
+    border-radius: 5px 5px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 1.2em;
+    display: block;
+    padding: 0;
+    margin: 0;
+    background-color: @color-grey;
+  }
+}
+
+ul.timeline {
+  box-shadow: inset 10px 0 0 0 @color-light, inset 12px 0 0 0 @color-brown;
+  padding: 0;
+  display: block;
+  overflow: hidden;
+  border: none;
+
+  li {
+    display: block;
+    list-style-type: none;
+    clear: both;
+    overflow: hidden;
+
+    .orb {
+      width: 10px;
+      height: 10px;
+      display: block;
+      float: left;
+      background: @color-brown;
+      border-radius: 100%;
+      margin-left: 6px;
+      margin-top: 18px;
+      box-sizing: border-box;
+
+      .inner {
+        width: 6px;
+        height: 6px;
+        display: block;
+        float: left;
+        background: @color-brown;
+        border-width: 1px;
+        border-color: @color-light;
+        border-style: solid;
+        border-radius: 100%;
+        box-sizing: border-box;
+        margin-left: 2px;
+        margin-top: 2px;
+      }
+    }
+
+    .content {
+      display: inline-block;
+      float: left;
+      margin-left: 2mm;
+      max-width: 90%;
+
+      h3 {
+        font-family: 'Roboto Slab', serif;
+        font-size: 1em;
+        color: @color-grey;
+      }
+      p {
+        line-height: 1.2em;
+      }
+
+      blockquote {
+        padding: 0 2mm;
+        margin: 0;
+        margin-block: 0;
+        margin-inline: 0;
+      }
+    }
+  }
+}
+ul.tags {
+  list-style: none;
+  padding: 5px 0;
+  margin: 0;
+  li {
+    list-style: none;
+    display: inline-block;
+    background: @color-brown;
+    padding: 2px 4px;
+    color: @color-light;
+    border-radius: 4px;
+    height: 16px;
+    line-height: 16px;
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+}

@@ -4,15 +4,8 @@ import (
 	"testing"
 )
 
-type CssAssetReader struct{}
-
-func (CssAssetReader) ReadFile(path string) ([]byte, error) {
-	return []byte(".class { width: (1 + 1) }"), nil
-}
-
 func TestRender(t *testing.T) {
-	defaultCompiler.SetReader(&CssAssetReader{})
-	str, err := defaultCompiler.RenderFile("input", map[string]interface{}{"compress": true})
+	str, err := defaultCompiler.Render(".class { width: (1 + 1) }", map[string]interface{}{"compress": true})
 
 	if err != nil {
 		t.Fatal("Render error:", err)
@@ -21,6 +14,16 @@ func TestRender(t *testing.T) {
 	var expected = `.class{width:2}`
 	if str != expected {
 		t.Error(`Render result invalid: "`+str+`" != "`, expected, `"`)
+	}
+
+	t.Log("Output:", str)
+}
+
+func TestRenderFile(t *testing.T) {
+	str, err := defaultCompiler.RenderFile("test/style.less")
+
+	if err != nil {
+		t.Fatal("Render error:", err)
 	}
 
 	t.Log("Output:", str)
