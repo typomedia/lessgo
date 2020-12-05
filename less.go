@@ -25,32 +25,6 @@ type Compiler struct {
 	r       Reader
 }
 
-// NewCompiler creates a new compiler with a set reader/writer.
-func NewCompiler() (*Compiler, error) {
-	runtime := goja.New()
-
-	registry.Enable(runtime)
-
-	c := &Compiler{
-		runtime: runtime,
-		mutex:   &sync.Mutex{},
-		r:       defaultReader,
-	}
-
-	c.runtime.Set("readFileNative", c.readFile)
-	c.runtime.Set("readFileFromAssets", c.readFileFromAssets)
-
-	if script == nil {
-		return nil, errors.New("script was not loaded")
-	}
-
-	if _, err := c.runtime.RunProgram(script); err != nil {
-		return nil, err
-	}
-
-	return c, nil
-}
-
 // Initialize the registry and precompile the script
 func init() {
 	registry = require.NewRegistryWithLoader(func(filename string) ([]byte, error) {
@@ -86,6 +60,34 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+// NewCompiler creates a new compiler with a set reader/writer.
+// Compilers are thread-safe, only because they use a shared mutex.
+// If using from multiple goroutines regularly, it's probably better to use a pool.
+func NewCompiler() (*Compiler, error) {
+	runtime := goja.New()
+
+	registry.Enable(runtime)
+
+	c := &Compiler{
+		runtime: runtime,
+		mutex:   &sync.Mutex{},
+		r:       defaultReader,
+	}
+
+	c.runtime.Set("readFileNative", c.readFile)
+	c.runtime.Set("readFileFromAssets", c.readFileFromAssets)
+
+	if script == nil {
+		return nil, errors.New("script was not loaded")
+	}
+
+	if _, err := c.runtime.RunProgram(script); err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
 // readFile will read a sync file either from the reader interface, or the box
@@ -125,6 +127,11 @@ func (c *Compiler) readFileFromAssets(call goja.FunctionCall) goja.Value {
 // SetReader sets the reader interface to provide files
 func (c *Compiler) SetReader(customReader Reader) {
 	c.r = customReader
+}
+
+// SetReader sets the default compiler's reader
+func SetReader(r Reader) {
+	defaultCompiler.SetReader(r)
 }
 
 // Render renders the input as raw less using a shared compiler.
