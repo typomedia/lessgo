@@ -183,19 +183,22 @@ func (c *Compiler) Render(input string, mods ...map[string]interface{}) (string,
 		options = mods[0]
 	}
 
+	options["sync"] = true
+
 	compile, ok := goja.AssertFunction(c.runtime.Get("compile"))
 
 	if !ok {
 		return "", errors.New("unable to get compiler")
 	}
 
-	resChan := make(chan interface{}, 1)
+	var res string
+	var renderErr error
 
 	_, err := compile(goja.Null(), c.runtime.ToValue(input), c.runtime.ToValue(options), c.runtime.ToValue(func(call goja.FunctionCall) goja.Value {
 		if len(call.Arguments) < 2 {
-			resChan <- call.Argument(0).String()
+			res = call.Argument(0).String()
 		} else {
-			resChan <- errors.New(call.Argument(1).String())
+			renderErr = errors.New(call.Argument(1).String())
 		}
 
 		return goja.Null()
@@ -205,14 +208,5 @@ func (c *Compiler) Render(input string, mods ...map[string]interface{}) (string,
 		return "", err
 	}
 
-	v := <-resChan
-
-	switch t := v.(type) {
-	case string:
-		return t, nil
-	case error:
-		return "", t
-	}
-
-	return "", nil
+	return res, renderErr
 }
