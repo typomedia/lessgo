@@ -88,6 +88,27 @@ func main() {
 }
 
 ```
+## Updating Less
+
+Get the [latest version of less.js](https://github.com/less/less.js/releases), navigate to `packages/less/src`.
+
+With npm installed, run:
+
+```
+npm install @babel/core @babel/cli @babel/preset-env
+```
+
+Then, run babel to get a copy that goja can run:
+
+```
+npx babel less/ --out-dir /path/to/less-go/assets/less/ --presets=@babel/preset-env
+```
+
+And finally, re-build the packr files:
+
+```
+packr2
+```
 
 ## Current limitations
 
