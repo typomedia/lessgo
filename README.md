@@ -1,10 +1,12 @@
-# less-go 
+# lessgo 
 
 [Less](http://lesscss.org/) compiler for [Golang](https://golang.org/)
 
 Builds CSS using original [Less compiler](https://github.com/less/less.js) and [goja](https://github.com/dop251/goja) for a true cross-platform Less solution.
 
 The original project [less-go](https://github.com/kib357/less-go) used Duktape instead of goja.
+
+This is a fork of the https://github.com/tystuyfzand/less-go to be used as `go install` package. 
 
 ## Status
 
@@ -13,13 +15,13 @@ This project is "stable" but also very much a work in progress. Expect changes a
 ## Installation
 
 ```
-go get github.com/tystuyfzand/less-go
+go install github.com/typomedia/lessgo@latest
 ```
 
 ## Command Line usage
 
 ```
-cd $GOPATH/src/github.com/tystuyfzand/less-go/lessc
+cd $GOPATH/src/github.com/typomedia/lessgo/lessc
 go get
 go build
 ./lessc --input="inputFile" --output="outputFile"
@@ -42,7 +44,7 @@ More about usage you can see in cli help:
 ## Programmatic usage
 
 ```go
-import "github.com/tystuyfzand/less-go"
+import "github.com/typomedia/lessgo"
 
 func main() {
 	output, err := less.RenderFile("./styles.less", map[string]interface{}{"compress": true})

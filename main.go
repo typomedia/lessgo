@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/tystuyfzand/less-go"
+	"github.com/typomedia/lessgo/less"
 	"log"
 	"os"
 )

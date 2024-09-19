@@ -1,7 +1,6 @@
 package less
 
 import (
-	"io/ioutil"
 	"os"
 )
 
@@ -16,5 +15,5 @@ type Writer interface {
 type reader struct{}
 
 func (reader) ReadFile(path string) ([]byte, error) {
-	return ioutil.ReadFile(path)
+	return os.ReadFile(path)
 }

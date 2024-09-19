@@ -1,4 +1,4 @@
-module github.com/tystuyfzand/less-go
+module github.com/typomedia/lessgo
 
 go 1.15
 
