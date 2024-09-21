@@ -1,11 +1,10 @@
 package less
 
 import (
+	"embed"
 	"errors"
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/require"
-	"github.com/gobuffalo/packr/v2"
-	"strings"
 	"sync"
 )
 
@@ -13,8 +12,6 @@ var (
 	script          *goja.Program
 	defaultCompiler *Compiler
 	registry        *require.Registry
-
-	box = packr.New("Assets", "./assets")
 
 	defaultReader = &reader{}
 )
@@ -25,23 +22,25 @@ type Compiler struct {
 	r       Reader
 }
 
+//go:embed assets
+var assets embed.FS
+
 // Initialize the registry and precompile the script
 func init() {
 	registry = require.NewRegistryWithLoader(func(filename string) ([]byte, error) {
-		filename = strings.Replace(filename, "\\", "/", -1)
-
-		bytes, err := box.Find(filename)
-
+		//filename = strings.Replace(filename, "\\", "/", -1)
+		bytes, err := assets.ReadFile("assets/" + filename)
 		if err == nil && bytes != nil && len(bytes) > 0 {
 			return bytes, err
 		}
+
+		//fmt.Println(bytes, err)
 
 		return nil, require.ModuleFileDoesNotExistError
 	})
 
 	script = goja.MustCompile("compiler.js", `
-		var fs = require('./less-go/fs'),
-			less = require('./less-go');
+		var	less = require('./less-go');
 		
 		function compile(input, options, cb) {
 			less.render(input, options, function (e, output) {
@@ -101,7 +100,7 @@ func (c *Compiler) readFile(call goja.FunctionCall) goja.Value {
 	bytes, err := c.r.ReadFile(path)
 
 	if err != nil {
-		bytes, err = box.Find(path)
+		bytes, err = assets.ReadFile("assets/" + path)
 
 		if err != nil {
 			return goja.Null()
@@ -117,7 +116,7 @@ func (c *Compiler) readFileFromAssets(call goja.FunctionCall) goja.Value {
 	if path == "" {
 		return goja.Null()
 	}
-	bytes, err := box.Find(path)
+	bytes, err := assets.ReadFile("assets/" + path)
 	if err != nil {
 		return goja.Null()
 	}

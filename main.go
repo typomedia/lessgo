@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/typomedia/lessgo/less"
 	"log"
@@ -25,10 +24,8 @@ func main() {
 }
 
 func render(input, output string) {
-	fmt.Println(input, output)
 
 	outputFile, err := os.Create(output)
-
 	if err != nil {
 		log.Fatalln("Unable to open output file:", err)
 	}
@@ -36,7 +33,6 @@ func render(input, output string) {
 	defer outputFile.Close()
 
 	outputStr, err := less.RenderFile(input)
-
 	if err != nil {
 		log.Fatalln("Unable to render:", err)
 	}
