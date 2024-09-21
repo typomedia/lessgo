@@ -1,30 +1,19 @@
 "use strict";
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
-
 var _lessError = _interopRequireDefault(require("../less-error"));
-
 var _tree = _interopRequireDefault(require("../tree"));
-
 var _visitors = _interopRequireDefault(require("../visitors"));
-
 var _parserInput = _interopRequireDefault(require("./parser-input"));
-
 var utils = _interopRequireWildcard(require("../utils"));
-
 var _functionRegistry = _interopRequireDefault(require("../functions/function-registry"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
+function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
+function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { "default": e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n["default"] = e, t && t.set(e, n), n; }
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
 //
 // less.js - parser
 //
@@ -57,10 +46,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 //    a terminal string or regexp, or a non-terminal function to call.
 //    It also takes care of moving all the indices forwards.
 //
+
 var Parser = function Parser(context, imports, fileInfo) {
   var parsers;
   var parserInput = (0, _parserInput["default"])();
-
   function error(msg, type) {
     throw new _lessError["default"]({
       index: parserInput.i,
@@ -69,27 +58,22 @@ var Parser = function Parser(context, imports, fileInfo) {
       message: msg
     }, imports);
   }
-
   function expect(arg, msg) {
     // some older browsers return typeof 'function' for RegExp
     var result = arg instanceof Function ? arg.call(parsers) : parserInput.$re(arg);
-
     if (result) {
       return result;
     }
-
     error(msg || (typeof arg === 'string' ? "expected '".concat(arg, "' got '").concat(parserInput.currentChar(), "'") : 'unexpected token'));
-  } // Specialization of expect()
+  }
 
-
+  // Specialization of expect()
   function expectChar(arg, msg) {
     if (parserInput.$char(arg)) {
       return arg;
     }
-
     error(msg || "expected '".concat(arg, "' got '").concat(parserInput.currentChar(), "'"));
   }
-
   function getDebugInfo(index) {
     var filename = fileInfo.filename;
     return {
@@ -97,6 +81,7 @@ var Parser = function Parser(context, imports, fileInfo) {
       fileName: filename
     };
   }
+
   /**
    *  Used after initial parsing to create nodes on the fly
    * 
@@ -105,13 +90,10 @@ var Parser = function Parser(context, imports, fileInfo) {
    *  @param {Number} currentIndex - start number to begin indexing
    *  @param {Object} fileInfo     - fileInfo to attach to created nodes
    */
-
-
   function parseNode(str, parseList, currentIndex, fileInfo, callback) {
     var result;
     var returnNodes = [];
     var parser = parserInput;
-
     try {
       parser.start(str, false, function fail(msg, index) {
         callback({
@@ -119,25 +101,20 @@ var Parser = function Parser(context, imports, fileInfo) {
           index: index + currentIndex
         });
       });
-
       for (var x = 0, p, i; p = parseList[x]; x++) {
         i = parser.i;
         result = parsers[p]();
-
         if (result) {
           try {
             result._index = i + currentIndex;
             result._fileInfo = fileInfo;
           } catch (e) {}
-
           returnNodes.push(result);
         } else {
           returnNodes.push(null);
         }
       }
-
       var endInfo = parser.end();
-
       if (endInfo.isFinished) {
         callback(null, returnNodes);
       } else {
@@ -149,11 +126,11 @@ var Parser = function Parser(context, imports, fileInfo) {
         message: e.message
       }, imports, fileInfo.filename);
     }
-  } //
+  }
+
+  //
   // The Parser
   //
-
-
   return {
     parserInput: parserInput,
     imports: imports,
@@ -174,10 +151,8 @@ var Parser = function Parser(context, imports, fileInfo) {
       var preText = '';
       globalVars = additionalData && additionalData.globalVars ? "".concat(Parser.serializeVars(additionalData.globalVars), "\n") : '';
       modifyVars = additionalData && additionalData.modifyVars ? "\n".concat(Parser.serializeVars(additionalData.modifyVars)) : '';
-
       if (context.pluginManager) {
         var preProcessors = context.pluginManager.getPreProcessors();
-
         for (var i = 0; i < preProcessors.length; i++) {
           str = preProcessors[i].process(str, {
             context: context,
@@ -186,22 +161,21 @@ var Parser = function Parser(context, imports, fileInfo) {
           });
         }
       }
-
       if (globalVars || additionalData && additionalData.banner) {
         preText = (additionalData && additionalData.banner ? additionalData.banner : '') + globalVars;
         ignored = imports.contentsIgnoredChars;
         ignored[fileInfo.filename] = ignored[fileInfo.filename] || 0;
         ignored[fileInfo.filename] += preText.length;
       }
-
-      str = str.replace(/\r\n?/g, '\n'); // Remove potential UTF Byte Order Mark
-
+      str = str.replace(/\r\n?/g, '\n');
+      // Remove potential UTF Byte Order Mark
       str = preText + str.replace(/^\uFEFF/, '') + modifyVars;
-      imports.contents[fileInfo.filename] = str; // Start with the primary rule.
+      imports.contents[fileInfo.filename] = str;
+
+      // Start with the primary rule.
       // The whole syntax tree is held under a Ruleset node,
       // with the `root` property set to true, so no `{}` are
       // output. The callback is called when the input is parsed.
-
       try {
         parserInput.start(str, context.chunkInput, function fail(msg, index) {
           throw new _lessError["default"]({
@@ -219,7 +193,9 @@ var Parser = function Parser(context, imports, fileInfo) {
         root.functionRegistry = _functionRegistry["default"].inherit();
       } catch (e) {
         return callback(new _lessError["default"](e, imports, fileInfo.filename));
-      } // If `i` is smaller than the `input.length - 1`,
+      }
+
+      // If `i` is smaller than the `input.length - 1`,
       // it means the parser wasn't able to parse the whole
       // string, so we've got a parsing error.
       //
@@ -227,16 +203,11 @@ var Parser = function Parser(context, imports, fileInfo) {
       // showing the line where the parse error occurred.
       // We split it up into two parts (the part which parsed,
       // and the part which didn't), so we can color them differently.
-
-
       var endInfo = parserInput.end();
-
       if (!endInfo.isFinished) {
         var message = endInfo.furthestPossibleErrorMessage;
-
         if (!message) {
           message = 'Unrecognised input';
-
           if (endInfo.furthestChar === '}') {
             message += '. Possibly missing opening \'{\'';
           } else if (endInfo.furthestChar === ')') {
@@ -245,7 +216,6 @@ var Parser = function Parser(context, imports, fileInfo) {
             message += '. Possibly missing something';
           }
         }
-
         error = new _lessError["default"]({
           type: 'Parse',
           message: message,
@@ -253,21 +223,17 @@ var Parser = function Parser(context, imports, fileInfo) {
           filename: fileInfo.filename
         }, imports);
       }
-
       var finish = function finish(e) {
         e = error || e || imports.error;
-
         if (e) {
           if (!(e instanceof _lessError["default"])) {
             e = new _lessError["default"](e, imports, fileInfo.filename);
           }
-
           return callback(e);
         } else {
           return callback(null, root);
         }
       };
-
       if (context.processImports !== false) {
         new _visitors["default"].ImportVisitor(imports, finish).run(root);
       } else {
@@ -323,51 +289,39 @@ var Parser = function Parser(context, imports, fileInfo) {
         var mixin = this.mixin;
         var root = [];
         var node;
-
         while (true) {
           while (true) {
             node = this.comment();
-
             if (!node) {
               break;
             }
-
             root.push(node);
-          } // always process comments before deciding if finished
-
-
+          }
+          // always process comments before deciding if finished
           if (parserInput.finished) {
             break;
           }
-
           if (parserInput.peek('}')) {
             break;
           }
-
           node = this.extendRule();
-
           if (node) {
             root = root.concat(node);
             continue;
           }
-
           node = mixin.definition() || this.declaration() || mixin.call(false, false) || this.ruleset() || this.variableCall() || this.entities.call() || this.atrule();
-
           if (node) {
             root.push(node);
           } else {
             var foundSemiColon = false;
-
             while (parserInput.$char(';')) {
               foundSemiColon = true;
             }
-
             if (!foundSemiColon) {
               break;
             }
           }
         }
-
         return root;
       },
       // comments are collected by the main parsing mechanism and then assigned to nodes
@@ -395,21 +349,17 @@ var Parser = function Parser(context, imports, fileInfo) {
           var index = parserInput.i;
           var isEscaped = false;
           parserInput.save();
-
           if (parserInput.$char('~')) {
             isEscaped = true;
           } else if (forceEscaped) {
             parserInput.restore();
             return;
           }
-
           str = parserInput.$quoted();
-
           if (!str) {
             parserInput.restore();
             return;
           }
-
           parserInput.forget();
           return new _tree["default"].Quoted(str.charAt(0), str.substr(1, str.length - 2), isEscaped, index, fileInfo);
         },
@@ -420,7 +370,6 @@ var Parser = function Parser(context, imports, fileInfo) {
         //
         keyword: function keyword() {
           var k = parserInput.$char('%') || parserInput.$re(/^\[?(?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+\]?/);
-
           if (k) {
             return _tree["default"].Color.fromKeyword(k) || new _tree["default"].Keyword(k);
           }
@@ -436,39 +385,32 @@ var Parser = function Parser(context, imports, fileInfo) {
           var name;
           var args;
           var func;
-          var index = parserInput.i; // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
+          var index = parserInput.i;
 
+          // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
           if (parserInput.peek(/^url\(/i)) {
             return;
           }
-
           parserInput.save();
           name = parserInput.$re(/^([\w-]+|%|progid:[\w\.]+)\(/);
-
           if (!name) {
             parserInput.forget();
             return;
           }
-
           name = name[1];
           func = this.customFuncCall(name);
-
           if (func) {
             args = func.parse();
-
             if (args && func.stop) {
               parserInput.forget();
               return args;
             }
           }
-
           args = this.arguments(args);
-
           if (!parserInput.$char(')')) {
             parserInput.restore('Could not parse call arguments or missing \')\'');
             return;
           }
-
           parserInput.forget();
           return new _tree["default"].Call(name, args, index, fileInfo);
         },
@@ -480,6 +422,7 @@ var Parser = function Parser(context, imports, fileInfo) {
         //     This is a quick prototype, to be modified/improved when
         //     more custom-parsed funcs come (e.g. `selector(...)`)
         //
+
         customFuncCall: function customFuncCall(name) {
           /* Ideally the table is to be moved out of here for faster perf.,
              but it's quite tricky since it relies on all these `parsers`
@@ -489,17 +432,14 @@ var Parser = function Parser(context, imports, fileInfo) {
             "boolean": f(condition),
             'if': f(condition)
           }[name.toLowerCase()];
-
           function f(parse, stop) {
             return {
               parse: parse,
               // parsing function
               stop: stop // when true - stop after parse() and return its result, 
               // otherwise continue for plain args
-
             };
           }
-
           function condition() {
             return [expect(parsers.condition, 'expected condition')];
           }
@@ -510,28 +450,22 @@ var Parser = function Parser(context, imports, fileInfo) {
           var isSemiColonSeparated;
           var value;
           parserInput.save();
-
           while (true) {
             if (prevArgs) {
               prevArgs = false;
             } else {
               value = parsers.detachedRuleset() || this.assignment() || parsers.expression();
-
               if (!value) {
                 break;
               }
-
               if (value.value && value.value.length == 1) {
                 value = value.value[0];
               }
-
               argsComma.push(value);
             }
-
             if (parserInput.$char(',')) {
               continue;
             }
-
             if (parserInput.$char(';') || isSemiColonSeparated) {
               isSemiColonSeparated = true;
               value = argsComma.length < 1 ? argsComma[0] : new _tree["default"].Value(argsComma);
@@ -539,7 +473,6 @@ var Parser = function Parser(context, imports, fileInfo) {
               argsComma = [];
             }
           }
-
           parserInput.forget();
           return isSemiColonSeparated ? argsSemiColon : argsComma;
         },
@@ -551,24 +484,21 @@ var Parser = function Parser(context, imports, fileInfo) {
         //
         //     filter: progid:DXImageTransform.Microsoft.Alpha( *opacity=50* )
         //
+
         assignment: function assignment() {
           var key;
           var value;
           parserInput.save();
           key = parserInput.$re(/^\w+(?=\s?=)/i);
-
           if (!key) {
             parserInput.restore();
             return;
           }
-
           if (!parserInput.$char('=')) {
             parserInput.restore();
             return;
           }
-
           value = parsers.entity();
-
           if (value) {
             parserInput.forget();
             return new _tree["default"].Assignment(key, value);
@@ -587,12 +517,10 @@ var Parser = function Parser(context, imports, fileInfo) {
           var value;
           var index = parserInput.i;
           parserInput.autoCommentAbsorb = false;
-
           if (!parserInput.$str('url(')) {
             parserInput.autoCommentAbsorb = true;
             return;
           }
-
           value = this.quoted() || this.variable() || this.property() || parserInput.$re(/^(?:(?:\\[\(\)'"])|[^\(\)'"])+/) || '';
           parserInput.autoCommentAbsorb = true;
           expectChar(')');
@@ -611,31 +539,25 @@ var Parser = function Parser(context, imports, fileInfo) {
           var name;
           var index = parserInput.i;
           parserInput.save();
-
           if (parserInput.currentChar() === '@' && (name = parserInput.$re(/^@@?[\w-]+/))) {
             ch = parserInput.currentChar();
-
             if (ch === '(' || ch === '[' && !parserInput.prevChar().match(/^\s/)) {
               // this may be a VariableCall lookup
               var result = parsers.variableCall(name);
-
               if (result) {
                 parserInput.forget();
                 return result;
               }
             }
-
             parserInput.forget();
             return new _tree["default"].Variable(name, index, fileInfo);
           }
-
           parserInput.restore();
         },
         // A variable entity using the protective {} e.g. @{var}
         variableCurly: function variableCurly() {
           var curly;
           var index = parserInput.i;
-
           if (parserInput.currentChar() === '@' && (curly = parserInput.$re(/^@\{([\w-]+)\}/))) {
             return new _tree["default"].Variable("@".concat(curly[1]), index, fileInfo);
           }
@@ -648,7 +570,6 @@ var Parser = function Parser(context, imports, fileInfo) {
         property: function property() {
           var name;
           var index = parserInput.i;
-
           if (parserInput.currentChar() === '$' && (name = parserInput.$re(/^\$[\w-]+/))) {
             return new _tree["default"].Property(name, index, fileInfo);
           }
@@ -657,7 +578,6 @@ var Parser = function Parser(context, imports, fileInfo) {
         propertyCurly: function propertyCurly() {
           var curly;
           var index = parserInput.i;
-
           if (parserInput.currentChar() === '$' && (curly = parserInput.$re(/^\$\{([\w-]+)\}/))) {
             return new _tree["default"].Property("$".concat(curly[1]), index, fileInfo);
           }
@@ -672,14 +592,12 @@ var Parser = function Parser(context, imports, fileInfo) {
         color: function color() {
           var rgb;
           parserInput.save();
-
           if (parserInput.currentChar() === '#' && (rgb = parserInput.$re(/^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,4})([\w.#\[])?/))) {
             if (!rgb[2]) {
               parserInput.forget();
               return new _tree["default"].Color(rgb[1], undefined, rgb[0]);
             }
           }
-
           parserInput.restore();
         },
         colorKeyword: function colorKeyword() {
@@ -688,16 +606,12 @@ var Parser = function Parser(context, imports, fileInfo) {
           parserInput.autoCommentAbsorb = false;
           var k = parserInput.$re(/^[_A-Za-z-][_A-Za-z0-9-]+/);
           parserInput.autoCommentAbsorb = autoCommentAbsorb;
-
           if (!k) {
             parserInput.forget();
             return;
           }
-
           parserInput.restore();
-
           var color = _tree["default"].Color.fromKeyword(k);
-
           if (color) {
             parserInput.$str(k);
             return color;
@@ -712,9 +626,7 @@ var Parser = function Parser(context, imports, fileInfo) {
           if (parserInput.peekNotNumeric()) {
             return;
           }
-
           var value = parserInput.$re(/^([+-]?\d*\.?\d+)(%|[a-z_]+)?/i);
-
           if (value) {
             return new _tree["default"].Dimension(value[1], value[2]);
           }
@@ -727,7 +639,6 @@ var Parser = function Parser(context, imports, fileInfo) {
         unicodeDescriptor: function unicodeDescriptor() {
           var ud;
           ud = parserInput.$re(/^U\+[0-9a-fA-F?]+(\-[0-9a-fA-F?]+)?/);
-
           if (ud) {
             return new _tree["default"].UnicodeDescriptor(ud[0]);
           }
@@ -743,19 +654,15 @@ var Parser = function Parser(context, imports, fileInfo) {
           parserInput.save();
           var escape = parserInput.$char('~');
           var jsQuote = parserInput.$char('`');
-
           if (!jsQuote) {
             parserInput.restore();
             return;
           }
-
           js = parserInput.$re(/^[^`]*`/);
-
           if (js) {
             parserInput.forget();
             return new _tree["default"].JavaScript(js.substr(0, js.length - 1), Boolean(escape), index, fileInfo);
           }
-
           parserInput.restore('invalid javascript definition');
         }
       },
@@ -766,7 +673,6 @@ var Parser = function Parser(context, imports, fileInfo) {
       //
       variable: function variable() {
         var name;
-
         if (parserInput.currentChar() === '@' && (name = parserInput.$re(/^(@[\w-]+)\s*:/))) {
           return name[1];
         }
@@ -785,21 +691,16 @@ var Parser = function Parser(context, imports, fileInfo) {
         var inValue = !!parsedName;
         var name = parsedName;
         parserInput.save();
-
         if (name || parserInput.currentChar() === '@' && (name = parserInput.$re(/^(@[\w-]+)(\(\s*\))?/))) {
           lookups = this.mixin.ruleLookups();
-
           if (!lookups && (inValue && parserInput.$str('()') !== '()' || name[2] !== '()')) {
             parserInput.restore('Missing \'[...]\' lookup in variable call');
             return;
           }
-
           if (!inValue) {
             name = name[1];
           }
-
           var call = new _tree["default"].VariableCall(name, i, fileInfo);
-
           if (!inValue && parsers.end()) {
             parserInput.forget();
             return call;
@@ -808,7 +709,6 @@ var Parser = function Parser(context, imports, fileInfo) {
             return new _tree["default"].NamespaceValue(call, lookups, i, fileInfo);
           }
         }
-
         parserInput.restore();
       },
       //
@@ -821,50 +721,38 @@ var Parser = function Parser(context, imports, fileInfo) {
         var option;
         var extendList;
         var extend;
-
         if (!parserInput.$str(isRule ? '&:extend(' : ':extend(')) {
           return;
         }
-
         do {
           option = null;
           elements = null;
-
           while (!(option = parserInput.$re(/^(all)(?=\s*(\)|,))/))) {
             e = this.element();
-
             if (!e) {
               break;
             }
-
             if (elements) {
               elements.push(e);
             } else {
               elements = [e];
             }
           }
-
           option = option && option[1];
-
           if (!elements) {
             error('Missing target selector for :extend().');
           }
-
           extend = new _tree["default"].Extend(new _tree["default"].Selector(elements), option, index, fileInfo);
-
           if (extendList) {
             extendList.push(extend);
           } else {
             extendList = [extend];
           }
         } while (parserInput.$char(','));
-
         expect(/^\)/);
-
         if (isRule) {
           expect(/^;/);
         }
-
         return extendList;
       },
       //
@@ -901,45 +789,36 @@ var Parser = function Parser(context, imports, fileInfo) {
           var elements;
           var args;
           var hasParens;
-
           if (s !== '.' && s !== '#') {
             return;
           }
-
           parserInput.save(); // stop us absorbing part of an invalid selector
 
           elements = this.elements();
-
           if (elements) {
             if (parserInput.$char('(')) {
               args = this.args(true).args;
               expectChar(')');
               hasParens = true;
             }
-
             if (getLookup !== false) {
               lookups = this.ruleLookups();
             }
-
             if (getLookup === true && !lookups) {
               parserInput.restore();
               return;
             }
-
             if (inValue && !lookups && !hasParens) {
               // This isn't a valid in-value mixin call
               parserInput.restore();
               return;
             }
-
             if (!inValue && parsers.important()) {
               important = true;
             }
-
             if (inValue || parsers.end()) {
               parserInput.forget();
               var mixin = new _tree["default"].mixin.Call(elements, args, index, fileInfo, !lookups && important);
-
               if (lookups) {
                 return new _tree["default"].NamespaceValue(mixin, lookups);
               } else {
@@ -947,10 +826,8 @@ var Parser = function Parser(context, imports, fileInfo) {
               }
             }
           }
-
           parserInput.restore();
         },
-
         /**
          * Matching elements for mixins
          * (Start with . or # and can have > )
@@ -962,26 +839,20 @@ var Parser = function Parser(context, imports, fileInfo) {
           var elem;
           var elemIndex;
           var re = /^[#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/;
-
           while (true) {
             elemIndex = parserInput.i;
             e = parserInput.$re(re);
-
             if (!e) {
               break;
             }
-
             elem = new _tree["default"].Element(c, e, false, elemIndex, fileInfo);
-
             if (elements) {
               elements.push(elem);
             } else {
               elements = [elem];
             }
-
             c = parserInput.$char('>');
           }
-
           return elements;
         },
         args: function args(isCall) {
@@ -1002,42 +873,32 @@ var Parser = function Parser(context, imports, fileInfo) {
           var expand;
           var hasSep = true;
           parserInput.save();
-
           while (true) {
             if (isCall) {
               arg = parsers.detachedRuleset() || parsers.expression();
             } else {
               parserInput.commentStore.length = 0;
-
               if (parserInput.$str('...')) {
                 returner.variadic = true;
-
                 if (parserInput.$char(';') && !isSemiColonSeparated) {
                   isSemiColonSeparated = true;
                 }
-
                 (isSemiColonSeparated ? argsSemiColon : argsComma).push({
                   variadic: true
                 });
                 break;
               }
-
               arg = entities.variable() || entities.property() || entities.literal() || entities.keyword() || this.call(true);
             }
-
             if (!arg || !hasSep) {
               break;
             }
-
             nameLoop = null;
-
             if (arg.throwAwayComments) {
               arg.throwAwayComments();
             }
-
             value = arg;
             var val = null;
-
             if (isCall) {
               // Variable
               if (arg.value && arg.value.length == 1) {
@@ -1046,19 +907,15 @@ var Parser = function Parser(context, imports, fileInfo) {
             } else {
               val = arg;
             }
-
             if (val && (val instanceof _tree["default"].Variable || val instanceof _tree["default"].Property)) {
               if (parserInput.$char(':')) {
                 if (expressions.length > 0) {
                   if (isSemiColonSeparated) {
                     error('Cannot mix ; and , as delimiter types');
                   }
-
                   expressionContainsNamed = true;
                 }
-
                 value = parsers.detachedRuleset() || parsers.expression();
-
                 if (!value) {
                   if (isCall) {
                     error('could not understand value for named argument');
@@ -1068,16 +925,13 @@ var Parser = function Parser(context, imports, fileInfo) {
                     return returner;
                   }
                 }
-
                 nameLoop = name = val.name;
               } else if (parserInput.$str('...')) {
                 if (!isCall) {
                   returner.variadic = true;
-
                   if (parserInput.$char(';') && !isSemiColonSeparated) {
                     isSemiColonSeparated = true;
                   }
-
                   (isSemiColonSeparated ? argsSemiColon : argsComma).push({
                     name: arg.name,
                     variadic: true
@@ -1091,35 +945,27 @@ var Parser = function Parser(context, imports, fileInfo) {
                 value = null;
               }
             }
-
             if (value) {
               expressions.push(value);
             }
-
             argsComma.push({
               name: nameLoop,
               value: value,
               expand: expand
             });
-
             if (parserInput.$char(',')) {
               hasSep = true;
               continue;
             }
-
             hasSep = parserInput.$char(';') === ';';
-
             if (hasSep || isSemiColonSeparated) {
               if (expressionContainsNamed) {
                 error('Cannot mix ; and , as delimiter types');
               }
-
               isSemiColonSeparated = true;
-
               if (expressions.length > 1) {
                 value = new _tree["default"].Value(expressions);
               }
-
               argsSemiColon.push({
                 name: name,
                 value: value,
@@ -1130,7 +976,6 @@ var Parser = function Parser(context, imports, fileInfo) {
               expressionContainsNamed = false;
             }
           }
-
           parserInput.forget();
           returner.args = isSemiColonSeparated ? argsSemiColon : argsComma;
           return returner;
@@ -1161,38 +1006,32 @@ var Parser = function Parser(context, imports, fileInfo) {
           var ruleset;
           var cond;
           var variadic = false;
-
           if (parserInput.currentChar() !== '.' && parserInput.currentChar() !== '#' || parserInput.peek(/^[^{]*\}/)) {
             return;
           }
-
           parserInput.save();
           match = parserInput.$re(/^([#.](?:[\w-]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+)\s*\(/);
-
           if (match) {
             name = match[1];
             var argInfo = this.args(false);
             params = argInfo.args;
-            variadic = argInfo.variadic; // .mixincall("@{a}");
+            variadic = argInfo.variadic;
+
+            // .mixincall("@{a}");
             // looks a bit like a mixin definition..
             // also
             // .mixincall(@a: {rule: set;});
             // so we have to be nice and restore
-
             if (!parserInput.$char(')')) {
               parserInput.restore('Missing closing \')\'');
               return;
             }
-
             parserInput.commentStore.length = 0;
-
             if (parserInput.$str('when')) {
               // Guard
               cond = expect(parsers.conditions, 'expected condition');
             }
-
             ruleset = parsers.block();
-
             if (ruleset) {
               parserInput.forget();
               return new _tree["default"].mixin.Definition(name, params, ruleset, cond, variadic);
@@ -1207,49 +1046,39 @@ var Parser = function Parser(context, imports, fileInfo) {
           var rule;
           var args;
           var lookups = [];
-
           if (parserInput.currentChar() !== '[') {
             return;
           }
-
           while (true) {
             parserInput.save();
             args = null;
             rule = this.lookupValue();
-
             if (!rule && rule !== '') {
               parserInput.restore();
               break;
             }
-
             lookups.push(rule);
             parserInput.forget();
           }
-
           if (lookups.length > 0) {
             return lookups;
           }
         },
         lookupValue: function lookupValue() {
           parserInput.save();
-
           if (!parserInput.$char('[')) {
             parserInput.restore();
             return;
           }
-
           var name = parserInput.$re(/^(?:[@$]{0,2})[_a-zA-Z0-9-]*/);
-
           if (!parserInput.$char(']')) {
             parserInput.restore();
             return;
           }
-
           if (name || name === '') {
             parserInput.forget();
             return name;
           }
-
           parserInput.restore();
         }
       },
@@ -1275,19 +1104,17 @@ var Parser = function Parser(context, imports, fileInfo) {
       //     alpha(opacity=88)
       //
       ieAlpha: function ieAlpha() {
-        var value; // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
+        var value;
 
+        // http://jsperf.com/case-insensitive-regex-vs-strtolower-then-regex/18
         if (!parserInput.$re(/^opacity=/i)) {
           return;
         }
-
         value = parserInput.$re(/^\d+/);
-
         if (!value) {
           value = expect(parsers.entities.variable, 'Could not parse alpha');
           value = "@{".concat(value.name.slice(1), "}");
         }
-
         expectChar(')');
         return new _tree["default"].Quoted('', "alpha(opacity=".concat(value, ")"));
       },
@@ -1310,10 +1137,8 @@ var Parser = function Parser(context, imports, fileInfo) {
         var index = parserInput.i;
         c = this.combinator();
         e = parserInput.$re(/^(?:\d+\.\d+|\d+)%/) || parserInput.$re(/^(?:[.#]?|:*)(?:[\w-]|[^\x00-\x9f]|\\(?:[A-Fa-f0-9]{1,6} ?|[^A-Fa-f0-9]))+/) || parserInput.$char('*') || parserInput.$char('&') || this.attribute() || parserInput.$re(/^\([^&()@]+\)/) || parserInput.$re(/^[\.#:](?=@)/) || this.entities.variableCurly();
-
         if (!e) {
           parserInput.save();
-
           if (parserInput.$char('(')) {
             if ((v = this.selector(false)) && parserInput.$char(')')) {
               e = new _tree["default"].Paren(v);
@@ -1325,7 +1150,6 @@ var Parser = function Parser(context, imports, fileInfo) {
             parserInput.forget();
           }
         }
-
         if (e) {
           return new _tree["default"].Element(c, e, e instanceof _tree["default"].Variable, index, fileInfo);
         }
@@ -1341,31 +1165,24 @@ var Parser = function Parser(context, imports, fileInfo) {
       //
       combinator: function combinator() {
         var c = parserInput.currentChar();
-
         if (c === '/') {
           parserInput.save();
           var slashedCombinator = parserInput.$re(/^\/[a-z]+\//i);
-
           if (slashedCombinator) {
             parserInput.forget();
             return new _tree["default"].Combinator(slashedCombinator);
           }
-
           parserInput.restore();
         }
-
         if (c === '>' || c === '+' || c === '~' || c === '|' || c === '^') {
           parserInput.i++;
-
           if (c === '^' && parserInput.currentChar() === '^') {
             c = '^^';
             parserInput.i++;
           }
-
           while (parserInput.isWhitespace()) {
             parserInput.i++;
           }
-
           return new _tree["default"].Combinator(c);
         } else if (parserInput.isWhitespace(-1)) {
           return new _tree["default"].Combinator(' ');
@@ -1392,7 +1209,6 @@ var Parser = function Parser(context, imports, fileInfo) {
         var when;
         var condition;
         isLess = isLess !== false;
-
         while (isLess && (extendList = this.extend()) || isLess && (when = parserInput.$str('when')) || (e = this.element())) {
           if (when) {
             condition = expect(this.conditions, 'expected condition');
@@ -1408,27 +1224,21 @@ var Parser = function Parser(context, imports, fileInfo) {
             if (allExtends) {
               error('Extend can only be used at the end of selector');
             }
-
             c = parserInput.currentChar();
-
             if (elements) {
               elements.push(e);
             } else {
               elements = [e];
             }
-
             e = null;
           }
-
           if (c === '{' || c === '}' || c === ';' || c === ',' || c === ')') {
             break;
           }
         }
-
         if (elements) {
           return new _tree["default"].Selector(elements, allExtends, condition, index, fileInfo);
         }
-
         if (allExtends) {
           error('Extend must be used to extend a selector, it cannot be used on its own');
         }
@@ -1436,59 +1246,45 @@ var Parser = function Parser(context, imports, fileInfo) {
       selectors: function selectors() {
         var s;
         var selectors;
-
         while (true) {
           s = this.selector();
-
           if (!s) {
             break;
           }
-
           if (selectors) {
             selectors.push(s);
           } else {
             selectors = [s];
           }
-
           parserInput.commentStore.length = 0;
-
           if (s.condition && selectors.length > 1) {
             error("Guards are only currently allowed on a single selector.");
           }
-
           if (!parserInput.$char(',')) {
             break;
           }
-
           if (s.condition) {
             error("Guards are only currently allowed on a single selector.");
           }
-
           parserInput.commentStore.length = 0;
         }
-
         return selectors;
       },
       attribute: function attribute() {
         if (!parserInput.$char('[')) {
           return;
         }
-
         var entities = this.entities;
         var key;
         var val;
         var op;
-
         if (!(key = entities.variableCurly())) {
           key = expect(/^(?:[_A-Za-z0-9-\*]*\|)?(?:[_A-Za-z0-9-]|\\.)+/);
         }
-
         op = parserInput.$re(/^[|~*$^]?=/);
-
         if (op) {
           val = entities.quoted() || parserInput.$re(/^[0-9]+%/) || parserInput.$re(/^[\w-]+/) || entities.variableCurly();
         }
-
         expectChar(']');
         return new _tree["default"].Attribute(key, op, val);
       },
@@ -1498,18 +1294,15 @@ var Parser = function Parser(context, imports, fileInfo) {
       //
       block: function block() {
         var content;
-
         if (parserInput.$char('{') && (content = this.primary()) && parserInput.$char('}')) {
           return content;
         }
       },
       blockRuleset: function blockRuleset() {
         var block = this.block();
-
         if (block) {
           block = new _tree["default"].Ruleset(null, block);
         }
-
         return block;
       },
       detachedRuleset: function detachedRuleset() {
@@ -1517,7 +1310,6 @@ var Parser = function Parser(context, imports, fileInfo) {
         var params;
         var variadic;
         parserInput.save();
-
         if (parserInput.$re(/^[.#]\(/)) {
           /**
            * DR args currently only implemented for each() function, and not 
@@ -1528,25 +1320,19 @@ var Parser = function Parser(context, imports, fileInfo) {
           argInfo = this.mixin.args(false);
           params = argInfo.args;
           variadic = argInfo.variadic;
-
           if (!parserInput.$char(')')) {
             parserInput.restore();
             return;
           }
         }
-
         var blockRuleset = this.blockRuleset();
-
         if (blockRuleset) {
           parserInput.forget();
-
           if (params) {
             return new _tree["default"].mixin.Definition(null, params, blockRuleset, null, variadic);
           }
-
           return new _tree["default"].DetachedRuleset(blockRuleset);
         }
-
         parserInput.restore();
       },
       //
@@ -1557,21 +1343,16 @@ var Parser = function Parser(context, imports, fileInfo) {
         var rules;
         var debugInfo;
         parserInput.save();
-
         if (context.dumpLineNumbers) {
           debugInfo = getDebugInfo(parserInput.i);
         }
-
         selectors = this.selectors();
-
         if (selectors && (rules = this.block())) {
           parserInput.forget();
           var ruleset = new _tree["default"].Ruleset(selectors, rules, context.strictImports);
-
           if (context.dumpLineNumbers) {
             ruleset.debugInfo = debugInfo;
           }
-
           return ruleset;
         } else {
           parserInput.restore();
@@ -1586,51 +1367,43 @@ var Parser = function Parser(context, imports, fileInfo) {
         var important;
         var merge;
         var isVariable;
-
         if (c === '.' || c === '#' || c === '&' || c === ':') {
           return;
         }
-
         parserInput.save();
         name = this.variable() || this.ruleProperty();
-
         if (name) {
           isVariable = typeof name === 'string';
-
           if (isVariable) {
             value = this.detachedRuleset();
-
             if (value) {
               hasDR = true;
             }
           }
-
           parserInput.commentStore.length = 0;
-
           if (!value) {
             // a name returned by this.ruleProperty() is always an array of the form:
             // [string-1, ..., string-n, ""] or [string-1, ..., string-n, "+"]
             // where each item is a tree.Keyword or tree.Variable
-            merge = !isVariable && name.length > 1 && name.pop().value; // Custom property values get permissive parsing
+            merge = !isVariable && name.length > 1 && name.pop().value;
 
+            // Custom property values get permissive parsing
             if (name[0].value && name[0].value.slice(0, 2) === '--') {
               value = this.permissiveValue();
-            } // Try to store values as anonymous
+            }
+            // Try to store values as anonymous
             // If we need the value later we'll re-parse it in ruleset.parseValue
             else {
-                value = this.anonymousValue();
-              }
-
+              value = this.anonymousValue();
+            }
             if (value) {
-              parserInput.forget(); // anonymous values absorb the end ';' which is required for them to work
-
+              parserInput.forget();
+              // anonymous values absorb the end ';' which is required for them to work
               return new _tree["default"].Declaration(name, value, false, merge, index, fileInfo);
             }
-
             if (!value) {
               value = this.value();
             }
-
             if (value) {
               important = this.important();
             } else if (isVariable) {
@@ -1638,7 +1411,6 @@ var Parser = function Parser(context, imports, fileInfo) {
               value = this.permissiveValue();
             }
           }
-
           if (value && (this.end() || hasDR)) {
             parserInput.forget();
             return new _tree["default"].Declaration(name, value, important, merge, index, fileInfo);
@@ -1652,12 +1424,10 @@ var Parser = function Parser(context, imports, fileInfo) {
       anonymousValue: function anonymousValue() {
         var index = parserInput.i;
         var match = parserInput.$re(/^([^.#@\$+\/'"*`(;{}-]*);/);
-
         if (match) {
           return new _tree["default"].Anonymous(match[1], index);
         }
       },
-
       /**
        * Used for custom properties, at-rules, and variables (as fallback)
        * Parses almost anything inside of {} [] () "" blocks
@@ -1675,93 +1445,72 @@ var Parser = function Parser(context, imports, fileInfo) {
         var tok = untilTokens || ';';
         var index = parserInput.i;
         var result = [];
-
         function testCurrentChar() {
           var _char = parserInput.currentChar();
-
           if (typeof tok === 'string') {
             return _char === tok;
           } else {
             return tok.test(_char);
           }
         }
-
         if (testCurrentChar()) {
           return;
         }
-
         value = [];
-
         do {
           e = this.comment();
-
           if (e) {
             value.push(e);
             continue;
           }
-
           e = this.entity();
-
           if (e) {
             value.push(e);
           }
         } while (e);
-
         done = testCurrentChar();
-
         if (value.length > 0) {
           value = new _tree["default"].Expression(value);
-
           if (done) {
             return value;
           } else {
             result.push(value);
-          } // Preserve space before $parseUntil as it will not
-
-
+          }
+          // Preserve space before $parseUntil as it will not
           if (parserInput.prevChar() === ' ') {
             result.push(new _tree["default"].Anonymous(' ', index));
           }
         }
-
         parserInput.save();
         value = parserInput.$parseUntil(tok);
-
         if (value) {
           if (typeof value === 'string') {
             error("Expected '".concat(value, "'"), 'Parse');
           }
-
           if (value.length === 1 && value[0] === ' ') {
             parserInput.forget();
             return new _tree["default"].Anonymous('', index);
           }
-
           var item;
-
           for (i = 0; i < value.length; i++) {
             item = value[i];
-
             if (Array.isArray(item)) {
               // Treat actual quotes as normal quoted values
               result.push(new _tree["default"].Quoted(item[0], item[1], true, index, fileInfo));
             } else {
               if (i === value.length - 1) {
                 item = item.trim();
-              } // Treat like quoted values, but replace vars like unquoted expressions
-
-
+              }
+              // Treat like quoted values, but replace vars like unquoted expressions
               var quote = new _tree["default"].Quoted('\'', item, true, index, fileInfo);
               quote.variableRegex = /@([\w-]+)/g;
               quote.propRegex = /\$([\w-]+)/g;
               result.push(quote);
             }
           }
-
           parserInput.forget();
           return new _tree["default"].Expression(result, true);
         }
-
         parserInput.restore();
       },
       //
@@ -1779,18 +1528,14 @@ var Parser = function Parser(context, imports, fileInfo) {
         var features;
         var index = parserInput.i;
         var dir = parserInput.$re(/^@import?\s+/);
-
         if (dir) {
           var options = (dir ? this.importOptions() : null) || {};
-
           if (path = this.entities.quoted() || this.entities.url()) {
             features = this.mediaFeatures();
-
             if (!parserInput.$char(';')) {
               parserInput.i = index;
               error('missing semi-colon or unrecognised media features on import');
             }
-
             features = features && new _tree["default"].Value(features);
             return new _tree["default"].Import(path, features, options, index, fileInfo);
           } else {
@@ -1803,45 +1548,38 @@ var Parser = function Parser(context, imports, fileInfo) {
         var o;
         var options = {};
         var optionName;
-        var value; // list of options, surrounded by parens
+        var value;
 
+        // list of options, surrounded by parens
         if (!parserInput.$char('(')) {
           return null;
         }
-
         do {
           o = this.importOption();
-
           if (o) {
             optionName = o;
             value = true;
-
             switch (optionName) {
               case 'css':
                 optionName = 'less';
                 value = false;
                 break;
-
               case 'once':
                 optionName = 'multiple';
                 value = false;
                 break;
             }
-
             options[optionName] = value;
-
             if (!parserInput.$char(',')) {
               break;
             }
           }
         } while (o);
-
         expectChar(')');
         return options;
       },
       importOption: function importOption() {
         var opt = parserInput.$re(/^(less|css|multiple|once|inline|reference|optional)/);
-
         if (opt) {
           return opt[1];
         }
@@ -1852,16 +1590,13 @@ var Parser = function Parser(context, imports, fileInfo) {
         var e;
         var p;
         parserInput.save();
-
         do {
           e = entities.keyword() || entities.variable() || entities.mixinLookup();
-
           if (e) {
             nodes.push(e);
           } else if (parserInput.$char('(')) {
             p = this.property();
             e = this.value();
-
             if (parserInput.$char(')')) {
               if (p && e) {
                 nodes.push(new _tree["default"].Paren(new _tree["default"].Declaration(p, e, null, null, parserInput.i, fileInfo, true)));
@@ -1875,9 +1610,7 @@ var Parser = function Parser(context, imports, fileInfo) {
             }
           }
         } while (e);
-
         parserInput.forget();
-
         if (nodes.length > 0) {
           return new _tree["default"].Expression(nodes);
         }
@@ -1886,29 +1619,23 @@ var Parser = function Parser(context, imports, fileInfo) {
         var entities = this.entities;
         var features = [];
         var e;
-
         do {
           e = this.mediaFeature();
-
           if (e) {
             features.push(e);
-
             if (!parserInput.$char(',')) {
               break;
             }
           } else {
             e = entities.variable() || entities.mixinLookup();
-
             if (e) {
               features.push(e);
-
               if (!parserInput.$char(',')) {
                 break;
               }
             }
           }
         } while (e);
-
         return features.length > 0 ? features : null;
       },
       media: function media() {
@@ -1917,34 +1644,27 @@ var Parser = function Parser(context, imports, fileInfo) {
         var media;
         var debugInfo;
         var index = parserInput.i;
-
         if (context.dumpLineNumbers) {
           debugInfo = getDebugInfo(index);
         }
-
         parserInput.save();
-
         if (parserInput.$str('@media')) {
           features = this.mediaFeatures();
           rules = this.block();
-
           if (!rules) {
             error('media definitions require block statements after any features');
           }
-
           parserInput.forget();
           media = new _tree["default"].Media(rules, features, index, fileInfo);
-
           if (context.dumpLineNumbers) {
             media.debugInfo = debugInfo;
           }
-
           return media;
         }
-
         parserInput.restore();
       },
       //
+
       // A @plugin directive, used to import plugins dynamically.
       //
       //     @plugin (args) "lib";
@@ -1955,10 +1675,8 @@ var Parser = function Parser(context, imports, fileInfo) {
         var options;
         var index = parserInput.i;
         var dir = parserInput.$re(/^@plugin?\s+/);
-
         if (dir) {
           args = this.pluginArgs();
-
           if (args) {
             options = {
               pluginArgs: args,
@@ -1969,13 +1687,11 @@ var Parser = function Parser(context, imports, fileInfo) {
               isPlugin: true
             };
           }
-
           if (path = this.entities.quoted() || this.entities.url()) {
             if (!parserInput.$char(';')) {
               parserInput.i = index;
               error('missing semi-colon on @plugin');
             }
-
             return new _tree["default"].Import(path, null, options, index, fileInfo);
           } else {
             parserInput.i = index;
@@ -1986,14 +1702,11 @@ var Parser = function Parser(context, imports, fileInfo) {
       pluginArgs: function pluginArgs() {
         // list of options, surrounded by parens
         parserInput.save();
-
         if (!parserInput.$char('(')) {
           parserInput.restore();
           return null;
         }
-
         var args = parserInput.$re(/^\s*([^\);]+)\)\s*/);
-
         if (args[1]) {
           parserInput.forget();
           return args[1].trim();
@@ -2018,75 +1731,58 @@ var Parser = function Parser(context, imports, fileInfo) {
         var hasUnknown;
         var hasBlock = true;
         var isRooted = true;
-
         if (parserInput.currentChar() !== '@') {
           return;
         }
-
         value = this['import']() || this.plugin() || this.media();
-
         if (value) {
           return value;
         }
-
         parserInput.save();
         name = parserInput.$re(/^@[a-z-]+/);
-
         if (!name) {
           return;
         }
-
         nonVendorSpecificName = name;
-
         if (name.charAt(1) == '-' && name.indexOf('-', 2) > 0) {
           nonVendorSpecificName = "@".concat(name.slice(name.indexOf('-', 2) + 1));
         }
-
         switch (nonVendorSpecificName) {
           case '@charset':
             hasIdentifier = true;
             hasBlock = false;
             break;
-
           case '@namespace':
             hasExpression = true;
             hasBlock = false;
             break;
-
           case '@keyframes':
           case '@counter-style':
             hasIdentifier = true;
             break;
-
           case '@document':
           case '@supports':
             hasUnknown = true;
             isRooted = false;
             break;
-
           default:
             hasUnknown = true;
             break;
         }
-
         parserInput.commentStore.length = 0;
-
         if (hasIdentifier) {
           value = this.entity();
-
           if (!value) {
             error("expected ".concat(name, " identifier"));
           }
         } else if (hasExpression) {
           value = this.expression();
-
           if (!value) {
             error("expected ".concat(name, " expression"));
           }
         } else if (hasUnknown) {
           value = this.permissiveValue(/^[{;]/);
           hasBlock = parserInput.currentChar() === '{';
-
           if (!value) {
             if (!hasBlock && parserInput.currentChar() !== ';') {
               error("".concat(name, " rule is missing block or ending semi-colon"));
@@ -2095,16 +1791,13 @@ var Parser = function Parser(context, imports, fileInfo) {
             value = null;
           }
         }
-
         if (hasBlock) {
           rules = this.blockRuleset();
         }
-
         if (rules || !hasBlock && value && parserInput.$char(';')) {
           parserInput.forget();
           return new _tree["default"].AtRule(name, value, rules, index, fileInfo, context.dumpLineNumbers ? getDebugInfo(index) : null, isRooted);
         }
-
         parserInput.restore('at-rule options not recognised');
       },
       //
@@ -2119,19 +1812,15 @@ var Parser = function Parser(context, imports, fileInfo) {
         var e;
         var expressions = [];
         var index = parserInput.i;
-
         do {
           e = this.expression();
-
           if (e) {
             expressions.push(e);
-
             if (!parserInput.$char(',')) {
               break;
             }
           }
         } while (e);
-
         if (expressions.length > 0) {
           return new _tree["default"].Value(expressions, index);
         }
@@ -2145,21 +1834,17 @@ var Parser = function Parser(context, imports, fileInfo) {
         var a;
         var e;
         parserInput.save();
-
         if (parserInput.$char('(')) {
           a = this.addition();
-
           if (a && parserInput.$char(')')) {
             parserInput.forget();
             e = new _tree["default"].Expression([a]);
             e.parens = true;
             return e;
           }
-
           parserInput.restore('Expected \')\'');
           return;
         }
-
         parserInput.restore();
       },
       multiplication: function multiplication() {
@@ -2169,37 +1854,29 @@ var Parser = function Parser(context, imports, fileInfo) {
         var operation;
         var isSpaced;
         m = this.operand();
-
         if (m) {
           isSpaced = parserInput.isWhitespace(-1);
-
           while (true) {
             if (parserInput.peek(/^\/[*\/]/)) {
               break;
             }
-
             parserInput.save();
             op = parserInput.$char('/') || parserInput.$char('*') || parserInput.$str('./');
-
             if (!op) {
               parserInput.forget();
               break;
             }
-
             a = this.operand();
-
             if (!a) {
               parserInput.restore();
               break;
             }
-
             parserInput.forget();
             m.parensInOp = true;
             a.parensInOp = true;
             operation = new _tree["default"].Operation(op, [operation || m, a], isSpaced);
             isSpaced = parserInput.isWhitespace(-1);
           }
-
           return operation || m;
         }
       },
@@ -2210,29 +1887,22 @@ var Parser = function Parser(context, imports, fileInfo) {
         var operation;
         var isSpaced;
         m = this.multiplication();
-
         if (m) {
           isSpaced = parserInput.isWhitespace(-1);
-
           while (true) {
             op = parserInput.$re(/^[-+]\s+/) || !isSpaced && (parserInput.$char('+') || parserInput.$char('-'));
-
             if (!op) {
               break;
             }
-
             a = this.multiplication();
-
             if (!a) {
               break;
             }
-
             m.parensInOp = true;
             a.parensInOp = true;
             operation = new _tree["default"].Operation(op, [operation || m, a], isSpaced);
             isSpaced = parserInput.isWhitespace(-1);
           }
-
           return operation || m;
         }
       },
@@ -2242,22 +1912,17 @@ var Parser = function Parser(context, imports, fileInfo) {
         var index = parserInput.i;
         var condition;
         a = this.condition(true);
-
         if (a) {
           while (true) {
             if (!parserInput.peek(/^,\s*(not\s*)?\(/) || !parserInput.$char(',')) {
               break;
             }
-
             b = this.condition(true);
-
             if (!b) {
               break;
             }
-
             condition = new _tree["default"].Condition('or', condition || a, b, index);
           }
-
           return condition || a;
         }
       },
@@ -2265,29 +1930,22 @@ var Parser = function Parser(context, imports, fileInfo) {
         var result;
         var logical;
         var next;
-
         function or() {
           return parserInput.$str('or');
         }
-
         result = this.conditionAnd(needsParens);
-
         if (!result) {
           return;
         }
-
         logical = or();
-
         if (logical) {
           next = this.condition(needsParens);
-
           if (next) {
             result = new _tree["default"].Condition(logical, result, next);
           } else {
             return;
           }
         }
-
         return result;
       },
       conditionAnd: function conditionAnd(needsParens) {
@@ -2295,49 +1953,37 @@ var Parser = function Parser(context, imports, fileInfo) {
         var logical;
         var next;
         var self = this;
-
         function insideCondition() {
           var cond = self.negatedCondition(needsParens) || self.parenthesisCondition(needsParens);
-
           if (!cond && !needsParens) {
             return self.atomicCondition(needsParens);
           }
-
           return cond;
         }
-
         function and() {
           return parserInput.$str('and');
         }
-
         result = insideCondition();
-
         if (!result) {
           return;
         }
-
         logical = and();
-
         if (logical) {
           next = this.conditionAnd(needsParens);
-
           if (next) {
             result = new _tree["default"].Condition(logical, result, next);
           } else {
             return;
           }
         }
-
         return result;
       },
       negatedCondition: function negatedCondition(needsParens) {
         if (parserInput.$str('not')) {
           var result = this.parenthesisCondition(needsParens);
-
           if (result) {
             result.negate = !result.negate;
           }
-
           return result;
         }
       },
@@ -2346,48 +1992,37 @@ var Parser = function Parser(context, imports, fileInfo) {
           var body;
           parserInput.save();
           body = me.condition(needsParens);
-
           if (!body) {
             parserInput.restore();
             return;
           }
-
           if (!parserInput.$char(')')) {
             parserInput.restore();
             return;
           }
-
           parserInput.forget();
           return body;
         }
-
         var body;
         parserInput.save();
-
         if (!parserInput.$str('(')) {
           parserInput.restore();
           return;
         }
-
         body = tryConditionFollowedByParenthesis(this);
-
         if (body) {
           parserInput.forget();
           return body;
         }
-
         body = this.atomicCondition(needsParens);
-
         if (!body) {
           parserInput.restore();
           return;
         }
-
         if (!parserInput.$char(')')) {
           parserInput.restore("expected ')' got '".concat(parserInput.currentChar(), "'"));
           return;
         }
-
         parserInput.forget();
         return body;
       },
@@ -2398,14 +2033,11 @@ var Parser = function Parser(context, imports, fileInfo) {
         var b;
         var c;
         var op;
-
         function cond() {
           return this.addition() || entities.keyword() || entities.quoted() || entities.mixinLookup();
         }
-
         cond = cond.bind(this);
         a = cond();
-
         if (a) {
           if (parserInput.$char('>')) {
             if (parserInput.$char('=')) {
@@ -2428,10 +2060,8 @@ var Parser = function Parser(context, imports, fileInfo) {
               op = '=';
             }
           }
-
           if (op) {
             b = cond();
-
             if (b) {
               c = new _tree["default"].Condition(op, a, b, index, false);
             } else {
@@ -2440,7 +2070,6 @@ var Parser = function Parser(context, imports, fileInfo) {
           } else {
             c = new _tree["default"].Condition('=', a, new _tree["default"].Keyword('true'), index, false);
           }
-
           return c;
         }
       },
@@ -2451,18 +2080,14 @@ var Parser = function Parser(context, imports, fileInfo) {
       operand: function operand() {
         var entities = this.entities;
         var negate;
-
         if (parserInput.peek(/^-[@\$\(]/)) {
           negate = parserInput.$char('-');
         }
-
         var o = this.sub() || entities.dimension() || entities.color() || entities.variable() || entities.property() || entities.call() || entities.quoted(true) || entities.colorKeyword() || entities.mixinLookup();
-
         if (negate) {
           o.parensInOp = true;
           o = new _tree["default"].Negative(o);
         }
-
         return o;
       },
       //
@@ -2477,41 +2102,33 @@ var Parser = function Parser(context, imports, fileInfo) {
         var e;
         var delim;
         var index = parserInput.i;
-
         do {
           e = this.comment();
-
           if (e) {
             entities.push(e);
             continue;
           }
-
           e = this.addition() || this.entity();
-
           if (e instanceof _tree["default"].Comment) {
             e = null;
           }
-
           if (e) {
-            entities.push(e); // operations do not allow keyword "/" dimension (e.g. small/20px) so we support that here
-
+            entities.push(e);
+            // operations do not allow keyword "/" dimension (e.g. small/20px) so we support that here
             if (!parserInput.peek(/^\/[\/*]/)) {
               delim = parserInput.$char('/');
-
               if (delim) {
                 entities.push(new _tree["default"].Anonymous(delim, index));
               }
             }
           }
         } while (e);
-
         if (entities.length > 0) {
           return new _tree["default"].Expression(entities);
         }
       },
       property: function property() {
         var name = parserInput.$re(/^(\*?-?[_a-zA-Z0-9-]+)\s*:/);
-
         if (name) {
           return name[1];
         }
@@ -2523,66 +2140,53 @@ var Parser = function Parser(context, imports, fileInfo) {
         var k;
         parserInput.save();
         var simpleProperty = parserInput.$re(/^([_a-zA-Z0-9-]+)\s*:/);
-
         if (simpleProperty) {
           name = [new _tree["default"].Keyword(simpleProperty[1])];
           parserInput.forget();
           return name;
         }
-
         function match(re) {
           var i = parserInput.i;
           var chunk = parserInput.$re(re);
-
           if (chunk) {
             index.push(i);
             return name.push(chunk[1]);
           }
         }
-
         match(/^(\*?)/);
-
         while (true) {
           if (!match(/^((?:[\w-]+)|(?:[@\$]\{[\w-]+\}))/)) {
             break;
           }
         }
-
         if (name.length > 1 && match(/^((?:\+_|\+)?)\s*:/)) {
-          parserInput.forget(); // at last, we have the complete match now. move forward,
-          // convert name particles to tree objects and return:
+          parserInput.forget();
 
+          // at last, we have the complete match now. move forward,
+          // convert name particles to tree objects and return:
           if (name[0] === '') {
             name.shift();
             index.shift();
           }
-
           for (k = 0; k < name.length; k++) {
             s = name[k];
             name[k] = s.charAt(0) !== '@' && s.charAt(0) !== '$' ? new _tree["default"].Keyword(s) : s.charAt(0) === '@' ? new _tree["default"].Variable("@".concat(s.slice(2, -1)), index[k], fileInfo) : new _tree["default"].Property("$".concat(s.slice(2, -1)), index[k], fileInfo);
           }
-
           return name;
         }
-
         parserInput.restore();
       }
     }
   };
 };
-
 Parser.serializeVars = function (vars) {
   var s = '';
-
   for (var name in vars) {
     if (Object.hasOwnProperty.call(vars, name)) {
       var value = vars[name];
       s += "".concat((name[0] === '@' ? '' : '@') + name, ": ").concat(value).concat(String(value).slice(-1) === ';' ? '' : ';');
     }
   }
-
   return s;
 };
-
-var _default = Parser;
-exports["default"] = _default;
+var _default = exports["default"] = Parser;

@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
-var _default = {
+var _default = exports["default"] = {
   error: function error(msg) {
     this._fireEvent('error', msg);
   },
@@ -24,7 +24,6 @@ var _default = {
     for (var i = 0; i < this._listeners.length; i++) {
       if (this._listeners[i] === listener) {
         this._listeners.splice(i, 1);
-
         return;
       }
     }
@@ -32,7 +31,6 @@ var _default = {
   _fireEvent: function _fireEvent(type, msg) {
     for (var i = 0; i < this._listeners.length; i++) {
       var logFunction = this._listeners[i][type];
-
       if (logFunction) {
         logFunction(msg);
       }
@@ -40,4 +38,3 @@ var _default = {
   },
   _listeners: []
 };
-exports["default"] = _default;

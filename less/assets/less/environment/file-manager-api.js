@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
-var _default = {
+var _default = exports["default"] = {
   /**
    * Given the full path to a file, return the path component
    * Provided by AbstractFileManager
@@ -12,7 +12,6 @@ var _default = {
    * @returns {string}
    */
   getPath: function getPath(filename) {},
-
   /**
    * Append a .less extension if appropriate. Only called if less thinks one could be added.
    * Provided by AbstractFileManager
@@ -20,7 +19,6 @@ var _default = {
    * @returns {string}
    */
   tryAppendLessExtension: function tryAppendLessExtension(filename) {},
-
   /**
    * Whether the rootpath should be converted to be absolute.
    * The browser ovverides this to return true because urls must be absolute.
@@ -28,7 +26,6 @@ var _default = {
    * @returns {bool}
    */
   alwaysMakePathsAbsolute: function alwaysMakePathsAbsolute() {},
-
   /**
    * Returns whether a path is absolute
    * Provided by AbstractFileManager
@@ -36,7 +33,6 @@ var _default = {
    * @returns {bool}
    */
   isPathAbsolute: function isPathAbsolute(path) {},
-
   /**
    * joins together 2 paths
    * Provided by AbstractFileManager
@@ -44,7 +40,6 @@ var _default = {
    * @param {string} laterPath
    */
   join: function join(basePath, laterPath) {},
-
   /**
    * Returns the difference between 2 paths
    * E.g. url = a/ baseUrl = a/b/ returns ../
@@ -55,7 +50,6 @@ var _default = {
    * @returns {string}
    */
   pathDiff: function pathDiff(url, baseUrl) {},
-
   /**
    * Returns whether this file manager supports this file for syncronous file retrieval
    * If true is returned, loadFileSync will then be called with the file.
@@ -67,7 +61,6 @@ var _default = {
    * @returns {bool}
    */
   supportsSync: function supportsSync(filename, currentDirectory, options, environment) {},
-
   /**
    *
    * @param {string} filename
@@ -77,7 +70,6 @@ var _default = {
    * @returns {bool}
    */
   supports: function supports(filename, currentDirectory, options, environment) {},
-
   /**
    * Loads a file asynchronously. Expects a promise that either rejects with an error or fulfills with an
    * object containing
@@ -91,7 +83,6 @@ var _default = {
    * @returns {Promise}
    */
   loadFile: function loadFile(filename, currentDirectory, options, environment) {},
-
   /**
    * Loads a file synchronously. Expects an immediate return with an object containing
    *  { error: - error object if an error occurs
@@ -106,4 +97,3 @@ var _default = {
    */
   loadFileSync: function loadFileSync(filename, currentDirectory, options, environment) {}
 };
-exports["default"] = _default;

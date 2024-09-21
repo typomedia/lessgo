@@ -4,46 +4,36 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
-
 var _tree = _interopRequireDefault(require("../tree"));
-
 var _visitor = _interopRequireDefault(require("./visitor"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 var CSSVisitorUtils = /*#__PURE__*/function () {
   function CSSVisitorUtils(context) {
     _classCallCheck(this, CSSVisitorUtils);
-
     this._visitor = new _visitor["default"](this);
     this._context = context;
   }
-
-  _createClass(CSSVisitorUtils, [{
+  return _createClass(CSSVisitorUtils, [{
     key: "containsSilentNonBlockedChild",
     value: function containsSilentNonBlockedChild(bodyRules) {
       var rule;
-
       if (!bodyRules) {
         return false;
       }
-
       for (var r = 0; r < bodyRules.length; r++) {
         rule = bodyRules[r];
-
         if (rule.isSilent && rule.isSilent(this._context) && !rule.blocksVisibility()) {
           // the atrule contains something that was referenced (likely by extend)
           // therefore it needs to be shown in output too
           return true;
         }
       }
-
       return false;
     }
   }, {
@@ -72,17 +62,13 @@ var CSSVisitorUtils = /*#__PURE__*/function () {
         if (this.isEmpty(node) && !this.containsSilentNonBlockedChild(originalRules)) {
           return;
         }
-
         return node;
       }
-
       var compiledRulesBody = node.rules[0];
       this.keepOnlyVisibleChilds(compiledRulesBody);
-
       if (this.isEmpty(compiledRulesBody)) {
         return;
       }
-
       node.ensureVisibility();
       node.removeVisibilityBlock();
       return node;
@@ -93,28 +79,21 @@ var CSSVisitorUtils = /*#__PURE__*/function () {
       if (rulesetNode.firstRoot) {
         return true;
       }
-
       if (this.isEmpty(rulesetNode)) {
         return false;
       }
-
       if (!rulesetNode.root && !this.hasVisibleSelector(rulesetNode)) {
         return false;
       }
-
       return true;
     }
   }]);
-
-  return CSSVisitorUtils;
 }();
-
 var ToCSSVisitor = function ToCSSVisitor(context) {
   this._visitor = new _visitor["default"](this);
   this._context = context;
   this.utils = new CSSVisitorUtils(context);
 };
-
 ToCSSVisitor.prototype = {
   isReplacing: true,
   run: function run(root) {
@@ -124,7 +103,6 @@ ToCSSVisitor.prototype = {
     if (declNode.blocksVisibility() || declNode.variable) {
       return;
     }
-
     return declNode;
   },
   visitMixinDefinition: function visitMixinDefinition(mixinNode, visitArgs) {
@@ -137,7 +115,6 @@ ToCSSVisitor.prototype = {
     if (commentNode.blocksVisibility() || commentNode.isSilent(this._context)) {
       return;
     }
-
     return commentNode;
   },
   visitMedia: function visitMedia(mediaNode, visitArgs) {
@@ -150,7 +127,6 @@ ToCSSVisitor.prototype = {
     if (importNode.blocksVisibility()) {
       return;
     }
-
     return importNode;
   },
   visitAtRule: function visitAtRule(atRuleNode, visitArgs) {
@@ -173,35 +149,28 @@ ToCSSVisitor.prototype = {
       var bodyRules = atRuleNode.rules;
       return bodyRules.length === 1 && (!bodyRules[0].paths || bodyRules[0].paths.length === 0);
     }
-
     function getBodyRules(atRuleNode) {
       var nodeRules = atRuleNode.rules;
-
       if (hasFakeRuleset(atRuleNode)) {
         return nodeRules[0].rules;
       }
-
       return nodeRules;
-    } // it is still true that it is only one ruleset in array
+    }
+    // it is still true that it is only one ruleset in array
     // this is last such moment
     // process childs
-
-
     var originalRules = getBodyRules(atRuleNode);
     atRuleNode.accept(this._visitor);
     visitArgs.visitDeeper = false;
-
     if (!this.utils.isEmpty(atRuleNode)) {
       this._mergeRules(atRuleNode.rules[0].rules);
     }
-
     return this.utils.resolveVisibility(atRuleNode, originalRules);
   },
   visitAtRuleWithoutBody: function visitAtRuleWithoutBody(atRuleNode, visitArgs) {
     if (atRuleNode.blocksVisibility()) {
       return;
     }
-
     if (atRuleNode.name === '@charset') {
       // Only output the debug info together with subsequent @charset definitions
       // a comment (or @media statement) before the actual @charset atrule would
@@ -212,23 +181,18 @@ ToCSSVisitor.prototype = {
           comment.debugInfo = atRuleNode.debugInfo;
           return this._visitor.visit(comment);
         }
-
         return;
       }
-
       this.charset = true;
     }
-
     return atRuleNode;
   },
   checkValidNodes: function checkValidNodes(rules, isRoot) {
     if (!rules) {
       return;
     }
-
     for (var i = 0; i < rules.length; i++) {
       var ruleNode = rules[i];
-
       if (isRoot && ruleNode instanceof _tree["default"].Declaration && !ruleNode.variable) {
         throw {
           message: 'Properties must be inside selector blocks. They cannot be in the root',
@@ -236,7 +200,6 @@ ToCSSVisitor.prototype = {
           filename: ruleNode.fileInfo() && ruleNode.fileInfo().filename
         };
       }
-
       if (ruleNode instanceof _tree["default"].Call) {
         throw {
           message: "Function '".concat(ruleNode.name, "' is undefined"),
@@ -244,7 +207,6 @@ ToCSSVisitor.prototype = {
           filename: ruleNode.fileInfo() && ruleNode.fileInfo().filename
         };
       }
-
       if (ruleNode.type && !ruleNode.allowRoot) {
         throw {
           message: "".concat(ruleNode.type, " node returned by a function is not valid here"),
@@ -259,18 +221,15 @@ ToCSSVisitor.prototype = {
     var rule;
     var rulesets = [];
     this.checkValidNodes(rulesetNode.rules, rulesetNode.firstRoot);
-
     if (!rulesetNode.root) {
       // remove invisible paths
-      this._compileRulesetPaths(rulesetNode); // remove rulesets from this ruleset body and compile them separately
+      this._compileRulesetPaths(rulesetNode);
 
-
+      // remove rulesets from this ruleset body and compile them separately
       var nodeRules = rulesetNode.rules;
       var nodeRuleCnt = nodeRules ? nodeRules.length : 0;
-
       for (var i = 0; i < nodeRuleCnt;) {
         rule = nodeRules[i];
-
         if (rule && rule.rules) {
           // visit because we are moving them out from being a child
           rulesets.push(this._visitor.visit(rule));
@@ -278,59 +237,49 @@ ToCSSVisitor.prototype = {
           nodeRuleCnt--;
           continue;
         }
-
         i++;
-      } // accept the visitor to remove rules and refactor itself
+      }
+      // accept the visitor to remove rules and refactor itself
       // then we can decide nogw whether we want it or not
       // compile body
-
-
       if (nodeRuleCnt > 0) {
         rulesetNode.accept(this._visitor);
       } else {
         rulesetNode.rules = null;
       }
-
       visitArgs.visitDeeper = false;
     } else {
       // if (! rulesetNode.root) {
       rulesetNode.accept(this._visitor);
       visitArgs.visitDeeper = false;
     }
-
     if (rulesetNode.rules) {
       this._mergeRules(rulesetNode.rules);
-
       this._removeDuplicateRules(rulesetNode.rules);
-    } // now decide whether we keep the ruleset
+    }
 
-
+    // now decide whether we keep the ruleset
     if (this.utils.isVisibleRuleset(rulesetNode)) {
       rulesetNode.ensureVisibility();
       rulesets.splice(0, 0, rulesetNode);
     }
-
     if (rulesets.length === 1) {
       return rulesets[0];
     }
-
     return rulesets;
   },
   _compileRulesetPaths: function _compileRulesetPaths(rulesetNode) {
     if (rulesetNode.paths) {
       rulesetNode.paths = rulesetNode.paths.filter(function (p) {
         var i;
-
         if (p[0].elements[0].combinator.value === ' ') {
           p[0].elements[0].combinator = new _tree["default"].Combinator('');
         }
-
         for (i = 0; i < p.length; i++) {
           if (p[i].isVisible() && p[i].getIsOutput()) {
             return true;
           }
         }
-
         return false;
       });
     }
@@ -338,29 +287,24 @@ ToCSSVisitor.prototype = {
   _removeDuplicateRules: function _removeDuplicateRules(rules) {
     if (!rules) {
       return;
-    } // remove duplicates
+    }
 
-
+    // remove duplicates
     var ruleCache = {};
     var ruleList;
     var rule;
     var i;
-
     for (i = rules.length - 1; i >= 0; i--) {
       rule = rules[i];
-
       if (rule instanceof _tree["default"].Declaration) {
         if (!ruleCache[rule.name]) {
           ruleCache[rule.name] = rule;
         } else {
           ruleList = ruleCache[rule.name];
-
           if (ruleList instanceof _tree["default"].Declaration) {
             ruleList = ruleCache[rule.name] = [ruleCache[rule.name].toCSS(this._context)];
           }
-
           var ruleCSS = rule.toCSS(this._context);
-
           if (ruleList.indexOf(ruleCSS) !== -1) {
             rules.splice(i, 1);
           } else {
@@ -374,20 +318,16 @@ ToCSSVisitor.prototype = {
     if (!rules) {
       return;
     }
-
     var groups = {};
     var groupsArr = [];
-
     for (var i = 0; i < rules.length; i++) {
       var rule = rules[i];
-
       if (rule.merge) {
         var key = rule.name;
         groups[key] ? rules.splice(i--, 1) : groupsArr.push(groups[key] = []);
         groups[key].push(rule);
       }
     }
-
     groupsArr.forEach(function (group) {
       if (group.length > 0) {
         var result = group[0];
@@ -397,7 +337,6 @@ ToCSSVisitor.prototype = {
           if (rule.merge === '+' && space.length > 0) {
             comma.push(new _tree["default"].Expression(space = []));
           }
-
           space.push(rule.value);
           result.important = result.important || rule.important;
         });
@@ -406,5 +345,4 @@ ToCSSVisitor.prototype = {
     });
   }
 };
-var _default = ToCSSVisitor;
-exports["default"] = _default;
+var _default = exports["default"] = ToCSSVisitor;

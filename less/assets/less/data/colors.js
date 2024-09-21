@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
-var _default = {
+var _default = exports["default"] = {
   'aliceblue': '#f0f8ff',
   'antiquewhite': '#faebd7',
   'aqua': '#00ffff',
@@ -154,4 +154,3 @@ var _default = {
   'yellow': '#ffff00',
   'yellowgreen': '#9acd32'
 };
-exports["default"] = _default;

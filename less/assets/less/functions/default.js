@@ -4,20 +4,15 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
-
 var _keyword = _interopRequireDefault(require("../tree/keyword"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
 var defaultFunc = {
   eval: function _eval() {
     var v = this.value_;
     var e = this.error_;
-
     if (e) {
       throw e;
     }
-
     if (v != null) {
       return v ? _keyword["default"].True : _keyword["default"].False;
     }
@@ -32,5 +27,4 @@ var defaultFunc = {
     this.value_ = this.error_ = null;
   }
 };
-var _default = defaultFunc;
-exports["default"] = _default;
+var _default = exports["default"] = defaultFunc;

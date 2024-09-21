@@ -4,16 +4,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
-
 var _quoted = _interopRequireDefault(require("../tree/quoted"));
-
 var _anonymous = _interopRequireDefault(require("../tree/anonymous"));
-
 var _javascript = _interopRequireDefault(require("../tree/javascript"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-var _default = {
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
+var _default = exports["default"] = {
   e: function e(str) {
     return new _quoted["default"]('"', str instanceof _javascript["default"] ? str.evaluated : str.value, true);
   },
@@ -26,12 +21,9 @@ var _default = {
     result = result.replace(new RegExp(pattern.value, flags ? flags.value : ''), replacement);
     return new _quoted["default"](string.quote || '', result, string.escaped);
   },
-  '%': function _(string
-  /* arg, arg, ... */
-  ) {
+  '%': function _(string /* arg, arg, ... */) {
     var args = Array.prototype.slice.call(arguments, 1);
     var result = string.value;
-
     var _loop = function _loop(i) {
       /* jshint loopfunc:true */
       result = result.replace(/%[sda]/i, function (token) {
@@ -39,13 +31,10 @@ var _default = {
         return token.match(/[A-Z]$/) ? encodeURIComponent(value) : value;
       });
     };
-
     for (var i = 0; i < args.length; i++) {
       _loop(i);
     }
-
     result = result.replace(/%%/g, '%');
     return new _quoted["default"](string.quote || '', result, string.escaped);
   }
 };
-exports["default"] = _default;

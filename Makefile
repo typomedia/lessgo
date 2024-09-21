@@ -14,8 +14,9 @@ cross:
 
 update:
 	go install github.com/hashicorp/go-getter/cmd/go-getter@latest
-	go-getter https://github.com/less/less.js/archive/refs/tags/v4.2.0.zip build/
+	go-getter https://github.com/less/less.js/archive/refs/tags/v3.12.2.zip temp/
 	go install github.com/gen2brain/go-unarr/cmd/unarr@latest
-	unarr build/v4.2.0.zip build/
+	unarr temp/v3.12.2.zip temp/
 	npm install @babel/core @babel/cli @babel/preset-env
-	npx babel ls build/less.js-4.2.0/packages/less/src/less --out-dir assets/less/ --presets=@babel/preset-env
+	npx babel temp/less.js-3.12.2/packages/less/src/less --out-dir less/assets/less/ --presets=@babel/preset-env
+	#npx babel temp/less.js-3.12.2/packages/less/src/less-node --out-dir less/assets/less-go/ --presets=@babel/preset-env

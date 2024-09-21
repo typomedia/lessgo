@@ -4,37 +4,26 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports["default"] = void 0;
-
 var _dimension = _interopRequireDefault(require("../tree/dimension"));
-
 var _color = _interopRequireDefault(require("../tree/color"));
-
 var _quoted = _interopRequireDefault(require("../tree/quoted"));
-
 var _anonymous = _interopRequireDefault(require("../tree/anonymous"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
 var colorFunctions;
-
 function clamp(val) {
   return Math.min(1, Math.max(0, val));
 }
-
 function hsla(origColor, hsl) {
   var color = colorFunctions.hsla(hsl.h, hsl.s, hsl.l, hsl.a);
-
   if (color) {
     if (origColor.value && /^(rgb|hsl)/.test(origColor.value)) {
       color.value = origColor.value;
     } else {
       color.value = 'rgb';
     }
-
     return color;
   }
 }
-
 function toHSL(color) {
   if (color.toHSL) {
     return color.toHSL();
@@ -42,7 +31,6 @@ function toHSL(color) {
     throw new Error('Argument cannot be evaluated to a color');
   }
 }
-
 function toHSV(color) {
   if (color.toHSV) {
     return color.toHSV();
@@ -50,7 +38,6 @@ function toHSV(color) {
     throw new Error('Argument cannot be evaluated to a color');
   }
 }
-
 function number(n) {
   if (n instanceof _dimension["default"]) {
     return parseFloat(n.unit.is('%') ? n.value / 100 : n.value);
@@ -63,7 +50,6 @@ function number(n) {
     };
   }
 }
-
 function scaled(n, size) {
   if (n instanceof _dimension["default"] && n.unit.is('%')) {
     return parseFloat(n.value * size / 100);
@@ -71,11 +57,9 @@ function scaled(n, size) {
     return number(n);
   }
 }
-
 colorFunctions = {
   rgb: function rgb(r, g, b) {
     var color = colorFunctions.rgba(r, g, b, 1.0);
-
     if (color) {
       color.value = 'rgb';
       return color;
@@ -89,10 +73,8 @@ colorFunctions = {
         } else {
           a = r.alpha;
         }
-
         return new _color["default"](r.rgb, a, 'rgba');
       }
-
       var rgb = [r, g, b].map(function (c) {
         return scaled(c, 255);
       });
@@ -102,7 +84,6 @@ colorFunctions = {
   },
   hsl: function hsl(h, s, l) {
     var color = colorFunctions.hsla(h, s, l, 1.0);
-
     if (color) {
       color.value = 'hsl';
       return color;
@@ -112,7 +93,6 @@ colorFunctions = {
     try {
       var hue = function hue(h) {
         h = h < 0 ? h + 1 : h > 1 ? h - 1 : h;
-
         if (h * 6 < 1) {
           return m1 + (m2 - m1) * h * 6;
         } else if (h * 2 < 1) {
@@ -123,17 +103,14 @@ colorFunctions = {
           return m1;
         }
       };
-
       if (h instanceof _color["default"]) {
         if (s) {
           a = number(s);
         } else {
           a = h.alpha;
         }
-
         return new _color["default"](h.rgb, a, 'hsla');
       }
-
       var m1;
       var m2;
       h = number(h) % 360 / 360;
@@ -206,75 +183,62 @@ colorFunctions = {
     if (!color.rgb) {
       return null;
     }
-
     var hsl = toHSL(color);
-
     if (typeof method !== 'undefined' && method.value === 'relative') {
       hsl.s += hsl.s * amount.value / 100;
     } else {
       hsl.s += amount.value / 100;
     }
-
     hsl.s = clamp(hsl.s);
     return hsla(color, hsl);
   },
   desaturate: function desaturate(color, amount, method) {
     var hsl = toHSL(color);
-
     if (typeof method !== 'undefined' && method.value === 'relative') {
       hsl.s -= hsl.s * amount.value / 100;
     } else {
       hsl.s -= amount.value / 100;
     }
-
     hsl.s = clamp(hsl.s);
     return hsla(color, hsl);
   },
   lighten: function lighten(color, amount, method) {
     var hsl = toHSL(color);
-
     if (typeof method !== 'undefined' && method.value === 'relative') {
       hsl.l += hsl.l * amount.value / 100;
     } else {
       hsl.l += amount.value / 100;
     }
-
     hsl.l = clamp(hsl.l);
     return hsla(color, hsl);
   },
   darken: function darken(color, amount, method) {
     var hsl = toHSL(color);
-
     if (typeof method !== 'undefined' && method.value === 'relative') {
       hsl.l -= hsl.l * amount.value / 100;
     } else {
       hsl.l -= amount.value / 100;
     }
-
     hsl.l = clamp(hsl.l);
     return hsla(color, hsl);
   },
   fadein: function fadein(color, amount, method) {
     var hsl = toHSL(color);
-
     if (typeof method !== 'undefined' && method.value === 'relative') {
       hsl.a += hsl.a * amount.value / 100;
     } else {
       hsl.a += amount.value / 100;
     }
-
     hsl.a = clamp(hsl.a);
     return hsla(color, hsl);
   },
   fadeout: function fadeout(color, amount, method) {
     var hsl = toHSL(color);
-
     if (typeof method !== 'undefined' && method.value === 'relative') {
       hsl.a -= hsl.a * amount.value / 100;
     } else {
       hsl.a -= amount.value / 100;
     }
-
     hsl.a = clamp(hsl.a);
     return hsla(color, hsl);
   },
@@ -298,7 +262,6 @@ colorFunctions = {
     if (!weight) {
       weight = new _dimension["default"](50);
     }
-
     var p = weight.value / 100.0;
     var w = p * 2 - 1;
     var a = toHSL(color1).a - toHSL(color2).a;
@@ -317,28 +280,23 @@ colorFunctions = {
     if (!color.rgb) {
       return null;
     }
-
     if (typeof light === 'undefined') {
       light = colorFunctions.rgba(255, 255, 255, 1.0);
     }
-
     if (typeof dark === 'undefined') {
       dark = colorFunctions.rgba(0, 0, 0, 1.0);
-    } // Figure out which is actually light and dark:
-
-
+    }
+    // Figure out which is actually light and dark:
     if (dark.luma() > light.luma()) {
       var t = light;
       light = dark;
       dark = t;
     }
-
     if (typeof threshold === 'undefined') {
       threshold = 0.43;
     } else {
       threshold = number(threshold);
     }
-
     if (color.luma() < threshold) {
       return light;
     } else {
@@ -391,12 +349,10 @@ colorFunctions = {
       var val = c.value.slice(1);
       return new _color["default"](val, undefined, "#".concat(val));
     }
-
     if (c instanceof _color["default"] || (c = _color["default"].fromKeyword(c.value))) {
       c.value = undefined;
       return c;
     }
-
     throw {
       type: 'Argument',
       message: 'argument must be a color keyword or 3|4|6|8 digit hex e.g. #FFF'
@@ -409,5 +365,4 @@ colorFunctions = {
     return colorFunctions.mix(colorFunctions.rgb(0, 0, 0), color, amount);
   }
 };
-var _default = colorFunctions;
-exports["default"] = _default;
+var _default = exports["default"] = colorFunctions;
