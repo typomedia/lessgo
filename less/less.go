@@ -40,7 +40,7 @@ func init() {
 	})
 
 	script = goja.MustCompile("compiler.js", `
-		var	less = require('./less-go');
+		var	less = require('./less-go/index.js');
 		
 		function compile(input, options, cb) {
 			less.render(input, options, function (e, output) {
